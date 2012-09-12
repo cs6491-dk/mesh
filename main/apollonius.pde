@@ -7,7 +7,10 @@
 Disk
 apollonius(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-	/* TODO: Check for co-linearity */
+ 	if ((x1-x3)*(y1-y2) == (x1-x2)*(y1-y3)) {
+		return new Disk(0.0, 0.0, 1e10);
+	}
+
 	if (x1 == x2) {
 		/* Swap 2 & 3 */
 		float tmp_x = x2;
