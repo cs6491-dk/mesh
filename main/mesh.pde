@@ -8,7 +8,6 @@ class Mesh {
 	Mesh(float[][] G_in) {
 		G = G_in;
 		T = triangulation();
-		println(T);
 	}
 
 	int[] triangulation() {
