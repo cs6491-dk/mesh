@@ -25,7 +25,7 @@ class Mesh {
 					for (int m = 0; m < G.length; m++) {
 						if ( (m!=i) && (m!=j) && (m!=k) && (sq(d.x-G[m][0]) + sq(d.y-G[m][1]) < r2)) {
 							success = false;
-							continue;
+							break;
 						}
 					}
 					if (success) {
