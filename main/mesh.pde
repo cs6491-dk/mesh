@@ -2,15 +2,18 @@ class Mesh {
 	float node_radius = 1.0;
 	float[][] G;
 	int[] T;
+	float[][] T_center;
+	int cursor;
 
 	/*Mesh(filename) { };*/
 
 	Mesh(float[][] G_in) {
 		G = G_in;
-		T = triangulation();
+		do_triangulation();
+		cursor = 0;
 	}
 
-	int[] triangulation() {
+	void do_triangulation() {
 		Disk d;
 		ArrayList t_list = new ArrayList();
 		float r2;
@@ -37,12 +40,25 @@ class Mesh {
 			}
 		}
 
-		int[] ret = new int[t_list.size()];
+		T = new int[t_list.size()];
 		for (int i=0; i < t_list.size(); i++) {
-			ret[i] = (Integer)t_list.get(i);
+			T[i] = (Integer)t_list.get(i);
 		}
 
-		return ret;
+		T_center = new float[T.length/3][2];
+		float sum;
+		/* iterate over Triangles */
+		for (int i=0; i < T_center.length; i++) {
+			/* iterate over spatial dimensions (2) */
+			for (int j=0; j < 2; j++) {
+				sum = 0;
+				/* iterate over the three corners of Triangle */
+				for (int k=0; k < 3; k++) {
+					sum += G[T[i*3+k]][j];
+				}
+				T_center[i][j] = sum/3;
+			}
+		}
 	}
 
 	void draw() {
@@ -51,16 +67,45 @@ class Mesh {
 		for (int i=0; i < G.length; i++) {
 			ellipse(G[i][0], G[i][1], 2*node_radius, 2*node_radius);
 		}
-		//apollonius(G[0][0], G[0][1], G[1][0], G[1][1], G[2][0], G[2][1]).show_outline();
 
 		int a,b,c;
 		for (int i=0; i < T.length/3; i++) {
 			a = T[i*3  ];
 			b = T[i*3+1];
 			c = T[i*3+2];
+			/* Draw bounding disks */
+			/*apollonius(G[a][0], G[a][1], G[b][0], G[b][1], G[c][0], G[c][1]).show_outline();*/
+			/* Draw triangulation */
 			line(G[a][0], G[a][1], G[b][0], G[b][1]);
 			line(G[b][0], G[b][1], G[c][0], G[c][1]);
 			line(G[c][0], G[c][1], G[a][0], G[a][1]);
 		}
+
+		/* Draw triangulation centers */
+		/*for (int i=0; i < T_center.length; i++) {
+			ellipse(T_center[i][0], T_center[i][1], 2*node_radius, 2*node_radius);
+		}*/
+
+		/* Draw corner labels */
+		int tri;
+		String s;
+		for (int i=0; i < T.length; i++) {
+			tri = t(i);
+			s = ((Integer)i).toString();
+			if (i==cursor) {
+				fill(255, 0, 0);
+			}
+			else {
+				fill(0, 0, 0);
+			}
+			text(s, 0.7*G[T[i]][0]+0.3*T_center[tri][0]-0.5*textWidth(s),
+			        0.7*G[T[i]][1]+0.3*T_center[tri][1]+5);
+		}
+		fill(0, 0, 0);
+	}
+
+	int t(int corner) {
+		/* integer division rounds down */
+		return corner/3;
 	}
 }
