@@ -155,7 +155,12 @@ class Mesh {
 			tri = t(i);
 			s = ((Integer)i).toString();
 			if (i==cursor) {
-				fill(255, 0, 0);
+				if (bs(i)) {
+					fill(255, 0, 0);
+				}
+				else {
+					fill(0, 0, 255);
+				}
 			}
 			else {
 				fill(0, 0, 0);
@@ -178,9 +183,13 @@ class Mesh {
 		return S[c];
 	}
 
-	int t(int corner) {
+	int t(int c) {
 		/* integer division rounds down */
-		return corner/3;
+		return c/3;
+	}
+
+	boolean bs(int c) {
+		return T[p(c)] != T[n(s(c))];
 	}
 
 	void set_cursor(int new_cursor) {
