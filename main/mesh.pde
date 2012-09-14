@@ -113,6 +113,14 @@ class Mesh {
 		fill(0, 0, 0);
 	}
 
+	void n() {
+		cursor = (cursor+1)%3 + 3*t(cursor);
+	}
+
+	void p() {
+		cursor = (cursor+2)%3 + 3*t(cursor);
+	}
+
 	int t(int corner) {
 		/* integer division rounds down */
 		return corner/3;

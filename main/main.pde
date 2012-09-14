@@ -11,3 +11,11 @@ void draw() {
 	m.draw();
 }
 
+void keyPressed() {
+	if (key == 'n') {
+		m.n();
+	}
+	else if (key == 'p') {
+		m.p();
+	}
+}
