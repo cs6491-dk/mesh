@@ -8,7 +8,7 @@ boolean clockwise_triangle(float x1, float y1, float x2, float y2, float x3, flo
 	/* This is just the third element of the cross product of
 	 * V(1,2) and V(1,3).  The sense is inverted from usual
 	 * because the flipped y axis gives us a left-handed system */
-	return (a0 * b1 - a1 * b0) > 0;
+	return (a0*b1 - a1*b0) > 0;
 }
 
 /*float[] cross_product(float[] a, float[] b)
@@ -20,3 +20,18 @@ boolean clockwise_triangle(float x1, float y1, float x2, float y2, float x3, flo
 
 	return c;
 }*/
+
+float angle(float x1, float y1, float x2, float y2, float x3, float y3) {
+	float a0 = x2 - x1,
+	      a1 = y2 - y1,
+	      b0 = x3 - x1,
+	      b1 = y3 - y1;
+
+	float a = acos((a0*b0 + a1*b1)/sqrt((sq(a0)+sq(a1))*(sq(b0)+sq(b1))));
+
+	if ((a0*b1 - a1*b0) < 0) {
+		a = 2*PI - a;
+	}
+
+	return a;
+}

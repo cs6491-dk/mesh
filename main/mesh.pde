@@ -33,7 +33,7 @@ class Mesh {
 					r2 = sq(d.r);
 					success = true;
 					for (int m = 0; m < G.length; m++) {
-						if ( (m!=i) && (m!=j) && (m!=k) && (sq(d.x-G[m][0]) + sq(d.y-G[m][1]) < r2)) {
+						if ((m!=i) && (m!=j) && (m!=k) && (sq(d.x-G[m][0]) + sq(d.y-G[m][1]) <= r2)) {
 							success = false;
 							break;
 						}
@@ -84,13 +84,12 @@ class Mesh {
 		boolean success;
 		/* iterate over corners */
 		for (int i=0; i < S.length; i++) {
-			tri = t(i);
 			v = T[i];
 			pv = T[p(i)];
 			success = false;
 			/* iterate over corners to find a match */
 			for (int j=0; j < S.length; j++) {
-				if ((T[i] == T[j]) && (t(j) != tri) && (T[n(j)] == pv)) {
+				if ((i != j) && (T[i] == T[j]) && (T[n(j)] == pv)) {
 					S[i] = j;
 					success = true;
 					break;
@@ -98,6 +97,28 @@ class Mesh {
 			}
 			if (!success) {
 				S[i] = i;
+			}
+		}
+
+		/* supwerswing */
+		/* iterate over corners, looking for superswingers */
+		int nsv;
+		float a, best_angle;
+		for (int i=0; i < S.length; i++) {
+			if (S[i] == i) {
+				best_angle = 2*PI;
+				v = T[i];
+				pv = T[p(i)];
+				for (int j=0; j < S.length; j++) {
+					if ((i != j) && (T[i] == T[j])) {
+						nsv = T[n(j)];
+						a = angle(G[v][0], G[v][1], G[pv][0], G[pv][1], G[nsv][0], G[nsv][1]);
+						if (a < best_angle) {
+							best_angle = a;
+							S[i] = j;
+						}
+					}
+				}
 			}
 		}
 	}
