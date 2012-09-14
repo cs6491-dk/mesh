@@ -13,9 +13,12 @@ void draw() {
 
 void keyPressed() {
 	if (key == 'n') {
-		m.n();
+		m.set_cursor(m.n(m.cursor));
 	}
 	else if (key == 'p') {
-		m.p();
+		m.set_cursor(m.p(m.cursor));
+	}
+	else if (key == 's') {
+		m.set_cursor(m.s(m.cursor));
 	}
 }
