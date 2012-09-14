@@ -33,8 +33,17 @@ class Mesh {
 					}
 					if (success) {
 						t_list.add(i);
-						t_list.add(j);
-						t_list.add(k);
+						int c = t_list.size()-1;
+						if (clockwise_triangle(G[i][0], G[i][1], G[j][0], G[j][1], G[k][0], G[k][1])) {
+							/* println("CW:" + c + ", " + (c+1) + ", " + (c+2)); */
+							t_list.add(j);
+							t_list.add(k);
+						}
+						else {
+							/* println("CCW:" + c + ", " + (c+1) + ", " + (c+2)); */
+							t_list.add(k);
+							t_list.add(j);
+						}
 					}
 				}
 			}
