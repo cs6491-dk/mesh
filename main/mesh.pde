@@ -1,15 +1,22 @@
 class Mesh {
+	/* Config Parameters */
 	float node_radius = 1.0;
+
+	/* Mesh Implementation Objects */
 	float[][] G;
 	int[] T;
+	int[] S;
+
+	/* Visualization */
 	float[][] T_center;
-	int cursor;
+	int cursor; /* (current corner) */
 
 	/*Mesh(filename) { };*/
 
 	Mesh(float[][] G_in) {
 		G = G_in;
 		do_triangulation();
+		calc_swing();
 		cursor = 0;
 	}
 
@@ -66,6 +73,31 @@ class Mesh {
 					sum += G[T[i*3+k]][j];
 				}
 				T_center[i][j] = sum/3;
+			}
+		}
+	}
+
+	void calc_swing() {
+		S = new int[T.length];
+
+		int tri, v, pv;
+		boolean success;
+		/* iterate over corners */
+		for (int i=0; i < S.length; i++) {
+			tri = t(i);
+			v = T[i];
+			pv = T[p(i)];
+			success = false;
+			/* iterate over corners to find a match */
+			for (int j=0; j < S.length; j++) {
+				if ((T[i] == T[j]) && (t(j) != tri) && (T[n(j)] == pv)) {
+					S[i] = j;
+					success = true;
+					break;
+				}
+			}
+			if (!success) {
+				S[i] = i;
 			}
 		}
 	}
