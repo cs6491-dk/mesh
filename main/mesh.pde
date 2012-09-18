@@ -4,7 +4,7 @@ class Mesh {
 
 	/* Mesh Implementation Objects */
 	float[][] G;
-	int[] T;
+	int[] V;
 	int[] S;
 
 	/* Visualization */
@@ -22,10 +22,11 @@ class Mesh {
 
 	void do_triangulation() {
 		Disk d;
-		ArrayList t_list = new ArrayList();
+		ArrayList v_list = new ArrayList();
 		float r2;
 		boolean success;
 
+		/* Do triangulation with ArrayList */
 		for (int i = 0; i < G.length; i++) {
 			for (int j = i+1; j < G.length; j++) {
 				for (int k = j+1; k < G.length; k++) {
@@ -39,29 +40,31 @@ class Mesh {
 						}
 					}
 					if (success) {
-						t_list.add(i);
-						int c = t_list.size()-1;
+						v_list.add(i);
+						int c = v_list.size()-1;
 						if (clockwise_triangle(G[i][0], G[i][1], G[j][0], G[j][1], G[k][0], G[k][1])) {
 							/* println("CW:" + c + ", " + (c+1) + ", " + (c+2)); */
-							t_list.add(j);
-							t_list.add(k);
+							v_list.add(j);
+							v_list.add(k);
 						}
 						else {
 							/* println("CCW:" + c + ", " + (c+1) + ", " + (c+2)); */
-							t_list.add(k);
-							t_list.add(j);
+							v_list.add(k);
+							v_list.add(j);
 						}
 					}
 				}
 			}
 		}
 
-		T = new int[t_list.size()];
-		for (int i=0; i < t_list.size(); i++) {
-			T[i] = (Integer)t_list.get(i);
+		/* Turn ArrayList into array V */
+		V = new int[v_list.size()];
+		for (int i=0; i < v_list.size(); i++) {
+			V[i] = (Integer)v_list.get(i);
 		}
 
-		T_center = new float[T.length/3][2];
+		/* Compute triangle centers */
+		T_center = new float[V.length/3][2];
 		float sum;
 		/* iterate over Triangles */
 		for (int i=0; i < T_center.length; i++) {
@@ -70,7 +73,7 @@ class Mesh {
 				sum = 0;
 				/* iterate over the three corners of Triangle */
 				for (int k=0; k < 3; k++) {
-					sum += G[T[i*3+k]][j];
+					sum += G[v(i*3+k)][j];
 				}
 				T_center[i][j] = sum/3;
 			}
@@ -78,41 +81,43 @@ class Mesh {
 	}
 
 	void calc_swing() {
-		S = new int[T.length];
+		S = new int[V.length];
 
-		int tri, v, pv;
+		/* find all good (non-super) swings */
+		int tri, iv, ipv;
 		boolean success;
 		/* iterate over corners */
 		for (int i=0; i < S.length; i++) {
-			v = T[i];
-			pv = T[p(i)];
+			iv = v(i);
+			ipv = v(p(i));
 			success = false;
 			/* iterate over corners to find a match */
 			for (int j=0; j < S.length; j++) {
-				if ((i != j) && (T[i] == T[j]) && (T[n(j)] == pv)) {
+				if ((i != j) && (iv == v(j)) && (ipv == v(n(j)))) {
 					S[i] = j;
 					success = true;
 					break;
 				}
 			}
+			/* No non-super swing found */
 			if (!success) {
 				S[i] = i;
 			}
 		}
 
-		/* supwerswing */
+		/* superswing */
 		/* iterate over corners, looking for superswingers */
-		int nsv;
+		int jnv;
 		float a, best_angle;
 		for (int i=0; i < S.length; i++) {
 			if (S[i] == i) {
 				best_angle = 2*PI;
-				v = T[i];
-				pv = T[p(i)];
+				iv = v(i);
+				ipv = v(p(i));
 				for (int j=0; j < S.length; j++) {
-					if ((i != j) && (T[i] == T[j])) {
-						nsv = T[n(j)];
-						a = angle(G[v][0], G[v][1], G[pv][0], G[pv][1], G[nsv][0], G[nsv][1]);
+					if ((i != j) && (iv == v(j))) {
+						jnv = v(n(j));
+						a = angle(G[iv][0], G[iv][1], G[ipv][0], G[ipv][1], G[jnv][0], G[jnv][1]);
 						if (a < best_angle) {
 							best_angle = a;
 							S[i] = j;
@@ -131,10 +136,10 @@ class Mesh {
 		}
 
 		int a,b,c;
-		for (int i=0; i < T.length/3; i++) {
-			a = T[i*3  ];
-			b = T[i*3+1];
-			c = T[i*3+2];
+		for (int i=0; i < V.length/3; i++) {
+			a = v(i*3  );
+			b = v(i*3+1);
+			c = v(i*3+2);
 			/* Draw bounding disks */
 			/*apollonius(G[a][0], G[a][1], G[b][0], G[b][1], G[c][0], G[c][1]).show_outline();*/
 			/* Draw triangulation */
@@ -151,7 +156,8 @@ class Mesh {
 		/* Draw corner labels */
 		int tri;
 		String s;
-		for (int i=0; i < T.length; i++) {
+		int iv;
+		for (int i=0; i < V.length; i++) {
 			tri = t(i);
 			s = ((Integer)i).toString();
 			if (i==cursor) {
@@ -165,8 +171,9 @@ class Mesh {
 			else {
 				fill(0, 0, 0);
 			}
-			text(s, 0.7*G[T[i]][0]+0.3*T_center[tri][0]-0.5*textWidth(s),
-			        0.7*G[T[i]][1]+0.3*T_center[tri][1]+5);
+			iv = v(i);
+			text(s, 0.7*G[iv][0]+0.3*T_center[tri][0]-0.5*textWidth(s),
+			        0.7*G[iv][1]+0.3*T_center[tri][1]+5);
 		}
 		fill(0, 0, 0);
 	}
@@ -188,8 +195,12 @@ class Mesh {
 		return c/3;
 	}
 
+	int v(int c) {
+		return V[c];
+	}
+
 	boolean bs(int c) {
-		return T[p(c)] != T[n(s(c))];
+		return v(p(c)) != v(n(s(c)));
 	}
 
 	void set_cursor(int new_cursor) {

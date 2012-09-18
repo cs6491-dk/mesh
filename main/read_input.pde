@@ -1,5 +1,3 @@
-/* Unfinished */
-
 float[][]
 read_input(String filename)
 {
