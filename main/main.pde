@@ -1,8 +1,9 @@
 Mesh m;
 
 void setup() {
-	size(300, 300);
-	G = read_input("data/mesh.txt"); 
+	size(500, 500);
+	/*G = read_input("data/mesh.txt"); */
+	G = rand_input(15, width, height);
 	m = new Mesh(G);
 }
 
