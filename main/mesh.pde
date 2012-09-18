@@ -6,6 +6,7 @@ class Mesh {
 	float[][] G;
 	int[] V;
 	int[] S;
+	int[] C;
 
 	/* Visualization */
 	float[][] T_center;
@@ -57,10 +58,13 @@ class Mesh {
 			}
 		}
 
+		C = new int[G.length];
+
 		/* Turn ArrayList into array V */
 		V = new int[v_list.size()];
 		for (int i=0; i < v_list.size(); i++) {
 			V[i] = (Integer)v_list.get(i);
+			C[V[i]] = i;
 		}
 
 		/* Compute triangle centers */
@@ -176,6 +180,10 @@ class Mesh {
 			        0.7*G[iv][1]+0.3*T_center[tri][1]+5);
 		}
 		fill(0, 0, 0);
+	}
+
+	int c(int v) {
+		return C[v];
 	}
 
 	int n(int c) {
