@@ -4,13 +4,10 @@ float dot_product(float[] a, float[] b) {
 float magnitude(float ax, float ay) {
 	return sqrt(ax*ax+ay*ay);
 }
-float angle(float[] a, float[] b) {
-	// return angle between two vectors using dot product.  this may not work all of the time
-	// and cross product may be required... 
-	float dp = dot_product(a, b);
-	return acos(dp/(magnitude(a[0], a[1])*magnitude(b[0], b[1])));
+float angle(Point p1, Point p2) {
+	// existing function returns the correct angle
+	return angle(new Point(0, 0), p1, p2);
 }
-
 float[] center_for_two_points(float[] a, float[] b, float r) {
 	// Inspired by approach given here
 	//  http://www.mathworks.com/matlabcentral/newsreader/view_thread/255121

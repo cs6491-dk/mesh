@@ -1,11 +1,10 @@
-float[][]
+Point[]
 rand_input(int count, int w, int h)
 {
-	float[][] G_rand = new float[count][2];
+	Point[] G_rand = new Point[count];
 
 	for (int i=0; i<count; i++) {
-		G_rand[i][0] = random(0, w);
-		G_rand[i][1] = random(0, h);
+		G_rand[i] = new Point(random(0, w), random(0, h));
 	}
 
 	return G_rand;
