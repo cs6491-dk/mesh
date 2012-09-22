@@ -1,4 +1,7 @@
 Mesh m;
+Cut c;
+
+boolean dragging;
 
 void setup() {
 	size(500, 500);
@@ -6,11 +9,16 @@ void setup() {
 	randomSeed(0);
 	G = rand_input(15, width, height);
 	m = new Mesh(G, 1);
+	c = null;
+	dragging = false;
 }
 
 void draw() {
 	background(#FFFFFF);
 	m.draw();
+	if (c != null) {
+		c.draw();
+	}
 }
 
 void keyPressed() {
@@ -25,3 +33,15 @@ void keyPressed() {
 	}
 }
 
+void mousePressed() {
+	c = new Cut(m);
+	dragging = true;
+}
+
+void mouseDragged() {
+	c.add_point(new Point(mouseX, mouseY));
+}
+
+void mouseRelease() {
+	dragging = false;
+}
