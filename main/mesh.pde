@@ -3,18 +3,18 @@ class Mesh {
 	float node_radius = 1.0;
 
 	/* Mesh Implementation Objects */
-	float[][] G;
+	Point[] G;
 	int[] V;
 	int[] S;
 	int[] C;
 
 	/* Visualization */
-	float[][] T_center;
+	Point[] T_center;
 	int cursor; /* (current corner) */
 
 	/*Mesh(filename) { };*/
 
-	Mesh(float[][] G_in) {
+	Mesh(Point[] G_in) {
 		G = G_in;
 		do_triangulation();
 		calc_swing();
@@ -31,11 +31,11 @@ class Mesh {
 		for (int i = 0; i < G.length; i++) {
 			for (int j = i+1; j < G.length; j++) {
 				for (int k = j+1; k < G.length; k++) {
-					d = apollonius(G[i][0], G[i][1], G[j][0], G[j][1], G[k][0], G[k][1]);
+					d = apollonius(G[i], G[j], G[k]);
 					r2 = sq(d.r);
 					success = true;
 					for (int m = 0; m < G.length; m++) {
-						if ((m!=i) && (m!=j) && (m!=k) && (sq(d.x-G[m][0]) + sq(d.y-G[m][1]) <= r2)) {
+						if ((m!=i) && (m!=j) && (m!=k) && (sq(d.x-G[m].x) + sq(d.y-G[m].y) <= r2)) {
 							success = false;
 							break;
 						}
@@ -43,7 +43,7 @@ class Mesh {
 					if (success) {
 						v_list.add(i);
 						int c = v_list.size()-1;
-						if (clockwise_triangle(G[i][0], G[i][1], G[j][0], G[j][1], G[k][0], G[k][1])) {
+						if (clockwise_triangle(G[i], G[j], G[k])) {
 							/* println("CW:" + c + ", " + (c+1) + ", " + (c+2)); */
 							v_list.add(j);
 							v_list.add(k);
@@ -68,19 +68,18 @@ class Mesh {
 		}
 
 		/* Compute triangle centers */
-		T_center = new float[V.length/3][2];
-		float sum;
+		T_center = new Point[V.length/3];
+		float x_sum, y_sum;
 		/* iterate over Triangles */
 		for (int i=0; i < T_center.length; i++) {
-			/* iterate over spatial dimensions (2) */
-			for (int j=0; j < 2; j++) {
-				sum = 0;
-				/* iterate over the three corners of Triangle */
-				for (int k=0; k < 3; k++) {
-					sum += G[v(i*3+k)][j];
-				}
-				T_center[i][j] = sum/3;
+			x_sum = 0;
+			y_sum = 0;
+			/* iterate over the three corners of Triangle */
+			for (int k=0; k < 3; k++) {
+				x_sum += G[v(i*3+k)].x;
+				y_sum += G[v(i*3+k)].y;
 			}
+			T_center[i] = new Point(x_sum/3, y_sum/3);
 		}
 	}
 
@@ -109,6 +108,8 @@ class Mesh {
 			}
 		}
 
+		/* Inefficient - maintain a reverse swing table, due to 
+		 * manifold mesh requirement, there will be a single beginning and end to the loop */
 		/* superswing */
 		/* iterate over corners, looking for superswingers */
 		int jnv;
@@ -121,7 +122,7 @@ class Mesh {
 				for (int j=0; j < S.length; j++) {
 					if ((i != j) && (iv == v(j))) {
 						jnv = v(n(j));
-						a = angle(G[iv][0], G[iv][1], G[ipv][0], G[ipv][1], G[jnv][0], G[jnv][1]);
+						a = angle(G[iv], G[ipv], G[jnv]);
 						if (a < best_angle) {
 							best_angle = a;
 							S[i] = j;
@@ -136,7 +137,7 @@ class Mesh {
 		strokeWeight(1);
 		fill(0, 0, 0);
 		for (int i=0; i < G.length; i++) {
-			ellipse(G[i][0], G[i][1], 2*node_radius, 2*node_radius);
+			ellipse(G[i].x, G[i].y, 2*node_radius, 2*node_radius);
 		}
 
 		int a,b,c;
@@ -145,16 +146,16 @@ class Mesh {
 			b = v(i*3+1);
 			c = v(i*3+2);
 			/* Draw bounding disks */
-			/*apollonius(G[a][0], G[a][1], G[b][0], G[b][1], G[c][0], G[c][1]).show_outline();*/
+			/*apollonius(G[a], G[b], G[c]).show_outline();*/
 			/* Draw triangulation */
-			line(G[a][0], G[a][1], G[b][0], G[b][1]);
-			line(G[b][0], G[b][1], G[c][0], G[c][1]);
-			line(G[c][0], G[c][1], G[a][0], G[a][1]);
+			line(G[a].x, G[a].y, G[b].x, G[b].y);
+			line(G[b].x, G[b].y, G[c].x, G[c].y);
+			line(G[c].x, G[c].y, G[a].x, G[a].y);
 		}
 
 		/* Draw triangulation centers */
 		/*for (int i=0; i < T_center.length; i++) {
-			ellipse(T_center[i][0], T_center[i][1], 2*node_radius, 2*node_radius);
+			ellipse(T_center[i].x, T_center[i].y, 2*node_radius, 2*node_radius);
 		}*/
 
 		/* Draw corner labels */
@@ -169,15 +170,15 @@ class Mesh {
 					fill(255, 0, 0);
 				}
 				else {
-					fill(0, 0, 255);
+					fill(0, 255, 0);
 				}
 			}
 			else {
 				fill(0, 0, 0);
 			}
 			iv = v(i);
-			text(s, 0.7*G[iv][0]+0.3*T_center[tri][0]-0.5*textWidth(s),
-			        0.7*G[iv][1]+0.3*T_center[tri][1]+5);
+			text(s, 0.7*G[iv].x+0.3*T_center[tri].x-0.5*textWidth(s),
+			        0.7*G[iv].y+0.3*T_center[tri].y+5);
 		}
 		fill(0, 0, 0);
 	}
