@@ -37,42 +37,36 @@ float angle(Point p1, Point p2, Point p3) {
 }
 
 Point line_segment_intersection(Point A, Point B, Point C, Point D) {
-	/*println("A=(" + A.x + "," + A.y + ")");
-	println("B=(" + B.x + "," + B.y + ")");
-	println("C=(" + C.x + "," + C.y + ")");
-	println("D=(" + D.x + "," + D.y + ")");*/
+	/* solve the following system:
+	 * (A.x + s*(B.x - A.x), A.y + s*(B.y - A.y)) == (C.x + t*(D.x - C.x), C.y + t*(D.y - C.y))
+	 * for 0<t<=1, 0<s<=1
+	 */
 
-	if (A.x == B.x) {
-		if (C.x == D.x) {
-			return null;
-		}
-		/* todo: write this */
-		return null;
-	}
-	else if (C.x == D.x) {
-		/* todo: write this */
+	float denominator = (B.y - A.y)*(C.x - D.x) - (B.x - A.x)*(C.y - D.y);
+
+	if (denominator == 0) {
+		/* same slope, no intersection */
 		return null;
 	}
 	else {
-		float m1 = (B.y - A.y)/(B.x - A.x),
-		      m2 = (D.y - C.y)/(D.x - C.x);
-
-		if (m1 == m2) {
-			/* Parallel segments */
+		float t = ((B.y - A.y)*(C.x - A.x) - (B.x - A.x)*(C.y - A.y))/denominator;
+		float s;
+		if (A.x != B.x) {
+			s = (C.x - A.x + t*(D.x - C.x))/(B.x - A.x);
+		}
+		else if (A.y != B.y) {
+			s = (C.y - A.y + t*(D.y - C.y))/(B.y - A.y);
+		}
+		else {
+			/* A and B are the same point */
 			return null;
 		}
 
-		/* solve the system: (A.x + s, A.y + s*m1) = (C.x + t, C.y + t*m2) */
-		float t = ((C.x - A.x)*m1 - (C.y - A.y))/(m2-m1);
-		float s = C.x - A.x + t;
-
-		float dxt = D.x - C.x,
-		      dxs = B.x - A.x;
-		if ((((dxt > 0) && (0 <= t) && (t <= dxt)) || ((0 >= t) && (t >= dxt))) && (((dxs > 0) && (0 <= s) && (s <= dxs)) || ((0 >= s) && (s >= dxs)))) {
-			return new Point(C.x + t, C.y + t*m2);
+		if ((0 < t) && (t <= 1) && (0 < s) && (s <= 1)) {
+			return new Point(A.x + s*(B.x - A.x), A.y + s*(B.y - A.y));
 		}
 		else {
-			/* lines intersect, but segments do not */
+			/* the lines intersect, but the segments do not */
 			return null;
 		}
 	}
