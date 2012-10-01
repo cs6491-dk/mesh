@@ -7,6 +7,7 @@ class Mesh {
 	int[] V;
 	int[] S;
 	int[] C;
+	int triangle_count;
 
 	/* Visualization */
 	Point[] T_center;
@@ -23,6 +24,7 @@ class Mesh {
 		else if (mode == 1) {      
 			do_triangulation();
 		}
+		calc_triangle_centers();
 		calc_swing();
 		cursor = 0;
 	}
@@ -84,21 +86,6 @@ class Mesh {
 			V[i] = (Integer)v_list.get(i);
 			C[V[i]] = i;
 		}
-
-		/* Compute triangle centers */
-		T_center = new Point[V.length/3];
-		float x_sum, y_sum;
-		/* iterate over Triangles */
-		for (int i=0; i < T_center.length; i++) {
-			x_sum = 0;
-			y_sum = 0;
-			/* iterate over the three corners of Triangle */
-			for (int k=0; k < 3; k++) {
-				x_sum += G[v(i*3+k)].x;
-				y_sum += G[v(i*3+k)].y;
-			}
-			T_center[i] = new Point(x_sum/3, y_sum/3);
-		}
 	}
 
 	void do_triangulation() {
@@ -146,12 +133,15 @@ class Mesh {
 			V[i] = (Integer)v_list.get(i);
 			C[V[i]] = i;
 		}
+	}
 
+	void calc_triangle_centers() {
 		/* Compute triangle centers */
-		T_center = new Point[V.length/3];
+		triangle_count = V.length/3;
+		T_center = new Point[triangle_count];
 		float x_sum, y_sum;
 		/* iterate over Triangles */
-		for (int i=0; i < T_center.length; i++) {
+		for (int i=0; i < triangle_count; i++) {
 			x_sum = 0;
 			y_sum = 0;
 			/* iterate over the three corners of Triangle */
