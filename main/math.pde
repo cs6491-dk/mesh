@@ -1,39 +1,34 @@
-boolean clockwise_triangle(Point p1, Point p2, Point p3)
+float signed_area(Point a, Point b, Point c)
 {
-	float a0 = p2.x - p1.x,
-	      a1 = p2.y - p1.y,
-	      b0 = p3.x - p1.x,
-	      b1 = p3.y - p1.y;
-
-	/* This is just the third element of the cross product of
-	 * V(1,2) and V(1,3).  The sense is inverted from usual
-	 * because the flipped y axis gives us a left-handed system */
-	return (a0*b1 - a1*b0) > 0;
+	return b.minus(a).cross(c.minus(a));
 }
 
-/*float[] cross_product(float[] a, float[] b)
+boolean clockwise_triangle(Point a, Point b, Point c)
 {
-	float[] c = new float[3];
-	c[0] = a[1]*b[2] - a[2]*b[1];
-	c[1] = a[2]*b[0] - a[0]*b[2];
-	c[2] = a[0]*b[1] - a[1]*b[0];
+	return signed_area(a, b, c) > 0;
+}
 
-	return c;
-}*/
+boolean triangle_contains(Point a, Point b, Point c, Point p)
+{
+	float c1 = signed_area(a, b, p),
+	      c2 = signed_area(b, c, p),
+	      c3 = signed_area(c, a, p);
 
-float angle(Point p1, Point p2, Point p3) {
-	float a0 = p2.x - p1.x,
-	      a1 = p2.y - p1.y,
-	      b0 = p3.x - p1.x,
-	      b1 = p3.y - p1.y;
+	return ((c1>=0) && (c2>=0) && (c3>=0)) || ((c1<0) && (c2<0) && (c3<0));
+}
 
-	float a = acos((a0*b0 + a1*b1)/sqrt((sq(a0)+sq(a1))*(sq(b0)+sq(b1))));
+float angle(Point p1, Point p2) {
+	float theta = acos(p1.dot(p2)/sqrt(p1.mag2()*p2.mag2()));
 
-	if ((a0*b1 - a1*b0) < 0) {
-		a = 2*PI - a;
+	if (p1.cross(p2) < 0) {
+		theta = 2*PI - theta;
 	}
 
-	return a;
+	return theta;
+}
+
+float angle(Point p1, Point p2, Point p3) {
+	return angle(p2.minus(p1), p3.minus(p1));
 }
 
 Point line_segment_intersection(Point A, Point B, Point C, Point D) {
