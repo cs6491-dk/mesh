@@ -2,8 +2,8 @@ class Cut {
 	float node_radius = 2;
 	int current_triangle;
 
-	ArrayList path_list;
-	ArrayList isect_list;
+	ArrayList<Point> path_list;
+	ArrayList<Point> isect_list;
 	Mesh m;
 
 	int entry_edge;
@@ -15,6 +15,7 @@ class Cut {
 		isect_list = new ArrayList();
 		m = arg_m;
 		current_triangle = -1;
+		/* edge numbers correspond to the number (%3) of the first endpoint corner */
 		entry_edge = -1;
 		entry_point = null;
 		entry_v1 = -1;
@@ -25,10 +26,11 @@ class Cut {
 		path_list.add(p);
 
 		if (path_list.size() == 1) {
+			/* First point - figure out where we are */
 			for (int i=0; i < m.triangle_count; i++) {
-				if (triangle_contains(m.G[m.v(m.c(i,0))],
-				                      m.G[m.v(m.c(i,1))],
-				                      m.G[m.v(m.c(i,2))],
+				if (triangle_contains(m.g(m.v(m.c(i,0))),
+				                      m.g(m.v(m.c(i,1))),
+				                      m.g(m.v(m.c(i,2))),
 				                      p)) {
 					current_triangle = i;
 					break;
@@ -37,42 +39,63 @@ class Cut {
 			println("Triangle " + current_triangle);
 		}
 		else {
-			Point A = (Point) path_list.get(path_list.size()-2),
+			Point A = path_list.get(path_list.size()-2),
 			      B = p,
 			      C, D;
 			if (current_triangle < 0) {
+				/* If we were outside, check every triangle */
+
 				/* iterate over all corners */
 				/* TODO: this hits every interior edge twice */
-				for (int i=0; i < m.V.length; i++) {
-					C = m.G[m.v(i)];
-					D = m.G[m.v(m.n(i))];
-					Point isect = line_segment_intersection(A, B, C, D);
-					if (isect != null) {
-						isect_list.add(isect);
-						current_triangle = m.t(i);
-						entry_edge = i % 3;
-						entry_point = isect;
-						println("Triangle " + current_triangle + "(" + entry_edge + ")");
-						break;
+				int corner;
+				for (int i=0; i < m.triangle_count; i++) {
+					if (m.enabled_triangle(i)) {
+						for (int j=0; j < 3; j++) {
+							corner = m.c(i,j);
+							C = m.g(m.v(corner));
+							D = m.g(m.v(m.n(corner)));
+							Point entry_point = line_segment_intersection(A, B, C, D);
+							if (entry_point != null) {
+								isect_list.add(entry_point);
+								current_triangle = i;
+								entry_edge = j;
+								entry_v1 = m.add_vertex(entry_point);
+								entry_v2 = m.add_vertex(entry_point);
+								println("Triangle " + current_triangle + "(" + entry_edge + ")");
+								break;
+							}
+						}
 					}
 				}
 			}
 			else {
+				/* If we're inside a triangle now, check intersections with its edges */
 				/* iterate over edges of current_triangle */
 				for (int exit_edge=0; exit_edge < 3; exit_edge++) {
 					int exit_corner = m.c(current_triangle, exit_edge);
-					C = m.G[m.v(exit_corner)];
-					D = m.G[m.v(m.n(exit_corner))];
+					C = m.g(m.v(exit_corner));
+					D = m.g(m.v(m.n(exit_corner)));
 					Point exit_point = line_segment_intersection(A, B, C, D);
 					if (exit_point != null) {
 						isect_list.add(exit_point);
 
-						if (entry_v1 >= 0) {
-							/* enable entry vertices */
+						/* go ahead and compute next triangles and entry edge
+						 * while everything is still consistent */
+						int next_triangle, next_entry_edge;
+						if (m.bs(m.n(exit_corner))) {
+							next_triangle = -1;
+							next_entry_edge = -1;
 						}
+						else {
+							next_triangle = m.t(m.s(m.n(exit_corner)));
+							next_entry_edge = m.s(m.n(exit_corner)) % 3;
+						}
+
+						/* Cut up current triangle */
 						m.disable_triangle(current_triangle);
 						/* split current triangle */
-						if (entry_edge == -1) {
+						if (entry_point == null) {
+							/* no entry point - must have started in this triangle */
 							entry_v1 = m.add_vertex(exit_point);
 							entry_v2 = m.add_vertex(exit_point);
 							/* disable entry vertices */
@@ -84,13 +107,14 @@ class Cut {
 							               m.v(    exit_corner) );
 						}
 						else {
+							/* TODO: enable entry vertices */
 							int entry_corner = m.c(current_triangle, entry_edge);
 							int exit_v1 = m.add_vertex(exit_point),
 							    exit_v2 = m.add_vertex(exit_point);
-							/* disable entry vertices */
+							/* TODO: disable exit vertices */
 							if (entry_edge == exit_edge) {
 								Point p1, p2,
-								      edge_vector = m.G[m.v(m.n(entry_corner))].minus(m.G[m.v(entry_corner)]);
+								      edge_vector = m.g(m.v(m.n(entry_corner))).minus(m.g(m.v(entry_corner)));
 								int p1v1, p1v2, p2v1, p2v2;
 								if (edge_vector.dot(exit_point) > edge_vector.dot(entry_point)) {
 									p1 = entry_point;
@@ -109,13 +133,12 @@ class Cut {
 									p2v2 = entry_v2;
 								}
 								/* TODO: Unhandled case - entry_point = exit_point */
-								/* TODO: split up other triangle? */
 								m.add_triangle(p2v1,
 								               m.v(m.n(entry_corner)),
 								               m.v(m.p(entry_corner)));
 								/* m.add_triangle(m.add_vertex(p1),
 								               m.add_vertex(p2),
-								               m.add_vertex(m.G[m.v(m.p(entry_corner))])); */
+								               m.add_vertex(m.g(m.v(m.p(entry_corner))))); */
 								m.add_triangle(m.v(entry_corner),
 								               p1v2,
 								               m.v(m.p(entry_corner)));
@@ -157,14 +180,8 @@ class Cut {
 							entry_v1 = exit_v2;
 							entry_v2 = exit_v1;
 						}
-						if (m.bs(m.n(exit_corner))) {
-							current_triangle = -1;
-							entry_edge = -1;
-						}
-						else {
-							current_triangle = m.t(m.s(m.n(exit_corner)));
-							entry_edge = m.s(m.n(exit_corner)) % 3;
-						}
+						current_triangle = next_triangle;
+						entry_edge = next_entry_edge;
 						println("Triangle " + current_triangle + "(" + entry_edge + ")");
 						break;
 					}
@@ -180,7 +197,7 @@ class Cut {
 		cursor = null;
 		for (int i=0; i < path_list.size(); i++) {
 			prev = cursor;
-			cursor = (Point) path_list.get(i);
+			cursor = path_list.get(i);
 
 			if (prev != null) {
 				line(prev.x, prev.y, cursor.x, cursor.y);
@@ -192,7 +209,7 @@ class Cut {
 		cursor = null;
 		for (int i=0; i < isect_list.size(); i++) {
 			prev = cursor;
-			cursor = (Point) isect_list.get(i);
+			cursor = isect_list.get(i);
 
 			ellipse(cursor.x, cursor.y, 2*node_radius, 2*node_radius);
 			if (prev != null) {
