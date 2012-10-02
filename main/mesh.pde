@@ -26,6 +26,31 @@ class Mesh {
     calc_swing();
     cursor = 0;
   }
+
+  boolean in_front(int a, int b, int c) {
+    // given two points a and b which constitute a line, determine if c is ahead or behind
+    // return true if in front, false if behind   
+    float val;
+    println("Is " + c + " in front of " + a + "," + b + "?"); 
+
+    // For a given line ab, this is the dot product between a vector perpendicular to ab
+    // and the vector ac.  If it is positive, then c is in front.  If it is negative, 
+    // then c is behind.  Note many formulations use the clockwise 90 degree rotation
+    // and so the equations and sign conditions are slightly different.  
+    // (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
+
+    val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
+    if (val >= 0) {
+      println("no");
+      return false;
+    } 
+    else {
+      println("yes");
+      return true;
+    }
+  }
+
+
   void do_bulge_triangulation() {
     ArrayList v_list = new ArrayList();
     int v1, v2, min_idx;
@@ -33,15 +58,18 @@ class Mesh {
     float gam_app, d_app;
     float [] mp = new float[2];
 
-    // Get the first two vertices and add them to the list
+    // Get the first two vertices 
     v1 = get_leftmost();
     v2 = min_angle_from_leftmost();
 
+    println("Doing bulge triangulation, " + v1 + "," +  v2);
 
-    for (int i=0; i < 10; i++)
+
+    for (int i=0; i < 3; i++)
     {
+      println("Bulging from: " + v1 + "," + v2);
       v_list.add(v1);
-      v_list.add(v2);
+      v_list.add(v2); 
       // Compute the midpoint
       mp[0] = (G[v1][0]+G[v2][0])/2.0;
       mp[1] = (G[v1][1]+G[v1][1])/2.0;
@@ -54,28 +82,21 @@ class Mesh {
           Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
           gam_app = sqrt(sq(dsc.x-mp[0])+sq(dsc.y-mp[1]));
           d_app = dsc.r-gam_app;
-          //println("gam+r: " + (gam_app+dsc.r));
-          if ((gam_app+dsc.r) < min_bulge) {
-            //min_bulge = d_app;
+          if ((gam_app+dsc.r) < min_bulge && in_front(v1, v2, k)){
             min_bulge = gam_app+dsc.r;
             min_idx = k;
-            //println("k: " + k);
-            //            println("Gam_app: " + gam_app);
-            //            println("d_app: " + d_app);  
-
-            //last_bulge = dsc;
           }
         }
       }  
       if (min_idx == -1) {
         break;
       }      
-      println("min_idx: " + min_idx);
+      println("Adding " + min_idx);
       v_list.add(min_idx);
-      v1 = v2;
-      v2 = min_idx;     
-    }
-    
+      println(in_front(v1, v2, min_idx));
+      v2 = min_idx;
+    } // for (int i=0...
+
     //println("v_list: " + v_list);
     C = new int[G.length];    
     /* Turn ArrayList into array V */
@@ -215,9 +236,12 @@ class Mesh {
 
   void draw() {
     strokeWeight(1);
-    fill(0, 0, 0);
+
     for (int i=0; i < G.length; i++) {
-      ellipse(G[i][0], G[i][1], 2*node_radius, 2*node_radius);
+      fill(0, 0, 0);
+      ellipse(G[i][0], G[i][1], 6*node_radius, 6*node_radius);
+      fill(255, 255, 255);
+      text(i, G[i][0], G[i][1]);
     }
 
     int a, b, c;
