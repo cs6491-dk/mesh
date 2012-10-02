@@ -31,22 +31,21 @@ class Mesh {
   boolean in_front(int a, int b, int c) {
     // given two points a and b which constitute a line, determine if c is ahead or behind
     // return true if in front, false if behind   
-    float val;
-    println("Is " + c + " in front of " + a + "," + b + "?"); 
-
+    
     // For a given line ab, this is the dot product between a vector perpendicular to ab
     // and the vector ac.  If it is positive, then c is in front.  If it is negative, 
     // then c is behind.  Note many formulations use the clockwise 90 degree rotation
     // and so the equations and sign conditions are slightly different.  
     // (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
 
-    val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
+    float val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
+    //println("Is " + c + " in front of " + a + "," + b + "?"); 
     if (val >= 0) {
-      println("no");
+      //println("no");
       return false;
     } 
     else {
-      println("yes");
+      //println("yes");
       return true;
     }
   }
@@ -62,6 +61,7 @@ class Mesh {
     else // bulge left and right
     {
       recursive_bulge(v3,v2);    // v1 = v3; // this "goes left"
+      println("Recursing to right");
       recursive_bulge(v1,v3);    // v2 = v3; // this "goes right"
     }
   }
