@@ -7,7 +7,7 @@ class Mesh {
   int[] V;
   int[] S;
   int[] C;
-
+  ArrayList v_list;
   /* Visualization */
   float[][] T_center;
   int cursor; /* (current corner) */
@@ -16,6 +16,7 @@ class Mesh {
   /*Mesh(filename) { };*/
 
   Mesh(float[][] G_in, int mode) {
+    v_list = new ArrayList();
     G = G_in;
     if (mode == 0) {
       do_bulge_triangulation();
@@ -50,8 +51,25 @@ class Mesh {
     }
   }
 
-  int bulge(ArrayList v_list, int v1, int v2) {
+  void recursive_bulge(int v1, int v2) {
+    int v3;
+    println("Bulging from: " + v1 + "," + v2);
+    v3 = bulge(v1, v2);
+    //if (v3 == 12) {v3 = -1;}
+    if (v3 == -1) {
+      println("No node bound on bulge from " +v1 +"," +v2 +" , not recursing");
+    }
+    else // bulge left and right
+    {
+      recursive_bulge(v3,v2);    // v1 = v3; // this "goes left"
+      recursive_bulge(v1,v3);    // v2 = v3; // this "goes right"
+    }
+  }
+
+  int bulge(int v1, int v2) {
     // bulge from v1,v2 and try to grab a vertex
+    // return it if you find it, -1 if you don't find anything
+
     int min_idx=-1;
     float min_bulge = 1e10;
     float gam_app, d_app;
@@ -60,6 +78,10 @@ class Mesh {
     // Compute the midpoint
     mp[0] = (G[v1][0]+G[v2][0])/2.0;
     mp[1] = (G[v1][1]+G[v1][1])/2.0;    
+
+    // Loop over unseen vertices.  if it is "in front", then do apollonius
+    // otherwise, skip it
+
     for (int k=0; k < G.length; k++)
     { 
       if (!v_list.contains(k)) {
@@ -75,35 +97,26 @@ class Mesh {
         }
       }
     }
+    if (min_idx > -1) {
+      println("Adding " + min_idx);
+      v_list.add(v1);
+      v_list.add(v2);       
+      v_list.add(min_idx);
+    } 
     return min_idx;
   }
   void do_bulge_triangulation() {
-    ArrayList v_list = new ArrayList();
-    int v1, v2, min_idx;
+    int v1, v2, v3;
 
     // Get the first two vertices 
     v1 = get_leftmost();
     v2 = min_angle_from_leftmost();
 
     println("Doing bulge triangulation, " + v1 + "," +  v2);
+    recursive_bulge(v1, v2);
 
-    for (int i=0; i < 3; i++)
-    {
-      println("Bulging from: " + v1 + "," + v2);
-      v_list.add(v1);
-      v_list.add(v2); 
-
-      min_idx = bulge(v_list, v1, v2);
-      if (min_idx == -1) {
-        break;
-      }      
-      println("Adding " + min_idx);
-      v_list.add(min_idx);
-      println(in_front(v1, v2, min_idx));
-      v2 = min_idx;
-    } // for (int i=0...
-
-    //println("v_list: " + v_list);
+    ///////////////////////////////////////////////////////////////////
+    // All code below is shared with do_triangulation... abstract it out
     C = new int[G.length];    
     /* Turn ArrayList into array V */
     V = new int[v_list.size()];
