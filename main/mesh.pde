@@ -50,13 +50,36 @@ class Mesh {
     }
   }
 
+  int bulge(ArrayList v_list, int v1, int v2) {
+    // bulge from v1,v2 and try to grab a vertex
+    int min_idx=-1;
+    float min_bulge = 1e10;
+    float gam_app, d_app;
+    float[] mp = new float[2];
 
+    // Compute the midpoint
+    mp[0] = (G[v1][0]+G[v2][0])/2.0;
+    mp[1] = (G[v1][1]+G[v1][1])/2.0;    
+    for (int k=0; k < G.length; k++)
+    { 
+      if (!v_list.contains(k)) {
+        if (!in_front(v1, v2, k)) {
+          continue;
+        }          
+        Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
+        gam_app = sqrt(sq(dsc.x-mp[0])+sq(dsc.y-mp[1]));
+        d_app = dsc.r-gam_app;
+        if ((gam_app+dsc.r) < min_bulge) {
+          min_bulge = gam_app+dsc.r;
+          min_idx = k;
+        }
+      }
+    }
+    return min_idx;
+  }
   void do_bulge_triangulation() {
     ArrayList v_list = new ArrayList();
     int v1, v2, min_idx;
-    float min_bulge;
-    float gam_app, d_app;
-    float [] mp = new float[2];
 
     // Get the first two vertices 
     v1 = get_leftmost();
@@ -64,30 +87,13 @@ class Mesh {
 
     println("Doing bulge triangulation, " + v1 + "," +  v2);
 
-
     for (int i=0; i < 3; i++)
     {
       println("Bulging from: " + v1 + "," + v2);
       v_list.add(v1);
       v_list.add(v2); 
-      // Compute the midpoint
-      mp[0] = (G[v1][0]+G[v2][0])/2.0;
-      mp[1] = (G[v1][1]+G[v1][1])/2.0;
 
-      min_idx=-1;
-      min_bulge = 1e10;
-      for (int k=0; k < G.length; k++)
-      { 
-        if (!v_list.contains(k)) {
-          Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
-          gam_app = sqrt(sq(dsc.x-mp[0])+sq(dsc.y-mp[1]));
-          d_app = dsc.r-gam_app;
-          if ((gam_app+dsc.r) < min_bulge && in_front(v1, v2, k)){
-            min_bulge = gam_app+dsc.r;
-            min_idx = k;
-          }
-        }
-      }  
+      min_idx = bulge(v_list, v1, v2);
       if (min_idx == -1) {
         break;
       }      
@@ -241,7 +247,7 @@ class Mesh {
       fill(0, 0, 0);
       ellipse(G[i][0], G[i][1], 6*node_radius, 6*node_radius);
       fill(255, 255, 255);
-      text(i, G[i][0], G[i][1]);
+      text(i, G[i][0]-5, G[i][1]+5);
     }
 
     int a, b, c;
