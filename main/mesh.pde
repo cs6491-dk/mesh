@@ -212,9 +212,9 @@ class Mesh {
 
 		int a, b, c;
 		for (int i=0; i < V.length/3; i++) {
-			a = v(i*3  );
-			b = v(i*3+1);
-			c = v(i*3+2);
+			a = v(c(i,0));
+			b = v(c(i,1));
+			c = v(c(i,2));
 			/* Draw bounding disks */
 			/*apollonius(G[a], G[b], G[c]).show_outline();*/
 			/* Draw triangulation */
@@ -258,6 +258,10 @@ class Mesh {
 
 	int c(int v) {
 		return C[v];
+	}
+
+	int c(int t, int i) {
+		return 3*t + i%3;
 	}
 
 	int n(int c) {
