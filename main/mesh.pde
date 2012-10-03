@@ -20,6 +20,7 @@ class Mesh {
 
 	Mesh(Point[] G_in, int mode) {
 		G = new ArrayList();
+		V = new ArrayList();
 		for (int i=0; i < G_in.length; i++) {
 			G.add(G_in[i]);
 		}
@@ -45,7 +46,7 @@ class Mesh {
 		// and so the equations and sign conditions are slightly different.  
 		// (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
 
-		float val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
+		float val = (g(c).x-g(a).x)*(g(b).y-g(a).y)+(g(c).y-g(a).y)*(g(a).x-g(b).x);
 		//println("Is " + c + " in front of " + a + "," + b + "?"); 
 		if (val >= 0) {
 			return false;
@@ -64,7 +65,7 @@ class Mesh {
 		// and so the equations and sign conditions are slightly different.  
 		// (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
 
-		float val = (x-G[a][0])*(G[b][1]-G[a][1])+(y-G[a][1])*(G[a][0]-G[b][0]);
+		float val = (x-g(a).x)*(g(b).y-g(a).y)+(y-g(a).y)*(g(a).x-g(b).x);
 		if (val >= 0) {
 			return false;
 		} 
@@ -75,7 +76,7 @@ class Mesh {
 	void recursive_bulge(int v1, int v2) {
 		int v3;
 		//println("Bulging from: " + v1 + "," + v2);
-		ArrayList old_vlist = new ArrayList(v_list);
+		ArrayList<Integer> old_vlist = new ArrayList(V);
 		v3 = bulge(v1, v2);
 		//if (v3 == 12) {v3 = -1;}
 		if (v3 == -1) {
@@ -103,13 +104,13 @@ class Mesh {
 		float[] mp = new float[2];
 
 		// Compute the midpoint
-		mp[0] = (G[v1][0]+G[v2][0])/2.0;
-		mp[1] = (G[v1][1]+G[v1][1])/2.0;    
+		mp[0] = (g(v1).x+g(v1).x)/2.0;
+		mp[1] = (g(v1).y+g(v2).y)/2.0;    
 
 		// Loop over unseen vertices.  if it is "in front", then do apollonius
 		// otherwise, skip it
 
-		for (int k=0; k < G.length; k++)
+		for (int k=0; k < G.size(); k++)
 		{ 
 			//boolean test = is_triangle(v1, v2, k);
 
@@ -122,7 +123,7 @@ class Mesh {
 				continue;
 			}*/
 
-			Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
+			Disk dsc= apollonius(g(v1), g(v2), g(k));
 			// map need to choose between "alpha" and "gamma" here.. see whiteboard notes
 			boolean center_location = in_front_point(v1, v2, dsc.x, dsc.y);
 			//if (center_location) {println("front");} else {println("back");}
@@ -144,9 +145,9 @@ class Mesh {
 		}
 
 		if (min_idx > -1 ) {
-			v_list.add(v1);
-			v_list.add(v2);       
-			v_list.add(min_idx);
+			V.add(v1);
+			V.add(v2);       
+			V.add(min_idx);
 		} 
 		return min_idx;
 	}
@@ -159,38 +160,10 @@ class Mesh {
 
 		//println("Doing bulge triangulation, " + v1 + "," +  v2);
 		recursive_bulge(v1, v2);
-		bulge(5,11);  
-		
-		///////////////////////////////////////////////////////////////////
-		// All code below is shared with do_triangulation... abstract it out
-		C = new int[G.length];    
-		/* Turn ArrayList into array V */
-		V = new int[v_list.size()];
-		for (int i=0; i < v_list.size(); i++) {
-			V[i] = (Integer)v_list.get(i);
-			C[V[i]] = i;
-		}
-
-		/* Compute triangle centers */
-		T_center = new float[V.length/3][2];
-		float sum;
-		/* iterate over Triangles */
-		for (int i=0; i < T_center.length; i++) {
-			/* iterate over spatial dimensions (2) */
-			for (int j=0; j < 2; j++) {
-				sum = 0;
-				/* iterate over the three corners of Triangle */
-				for (int k=0; k < 3; k++) {
-					sum += G[v(i*3+k)][j];
-				}
-				T_center[i][j] = sum/3;
-			}
-		}
 	}
 
 	void do_triangulation() {
 		Disk d;
-		V = new ArrayList();
 		float r2;
 		boolean success;
 
