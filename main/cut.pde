@@ -36,7 +36,6 @@ class Cut {
 					break;
 				}
 			}
-			println("Triangle " + current_triangle);
 		}
 		else {
 			Point A = path_list.get(path_list.size()-2),
@@ -54,14 +53,14 @@ class Cut {
 							corner = m.c(i,j);
 							C = m.g(m.v(corner));
 							D = m.g(m.v(m.n(corner)));
-							Point entry_point = line_segment_intersection(A, B, C, D);
-							if (entry_point != null) {
-								isect_list.add(entry_point);
+							Point isect = line_segment_intersection(A, B, C, D);
+							if (isect != null) {
+								isect_list.add(isect);
+								entry_point = isect;
 								current_triangle = i;
 								entry_edge = j;
 								entry_v1 = m.add_vertex(entry_point);
 								entry_v2 = m.add_vertex(entry_point);
-								println("Triangle " + current_triangle + "(" + entry_edge + ")");
 								break;
 							}
 						}
@@ -182,7 +181,7 @@ class Cut {
 						}
 						current_triangle = next_triangle;
 						entry_edge = next_entry_edge;
-						println("Triangle " + current_triangle + "(" + entry_edge + ")");
+						entry_point = exit_point;
 						break;
 					}
 				}

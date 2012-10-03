@@ -392,20 +392,86 @@ class Mesh {
 		V.add(a);
 		V.add(b);
 		V.add(c);
-		int corner;
+
+		int corner, corner_v, corner_pv, corner_nv, cmp,
+			/* compiler complains if we don't initialize */
+		    swing = -1, rswing = -1;
+		Boolean success;
 		for (int i=0; i < 3; i++) {
 			corner = c(triangle_count, i);
+
+			corner_v = v(corner);
+			corner_pv = v(p(corner));
+			corner_nv = v(n(corner));
+			success = false;
+			for (int j=0; j < triangle_count; j++) {
+				if (enabled_triangle(j)) {
+					for (int k=0; k < 3; k++) {
+						cmp = c(j,k);
+						if ((corner != cmp) && (corner_v == v(cmp))) {
+							if (corner_pv == v(n(cmp))) {
+								success = true;
+								swing = cmp;
+								rswing = r(swing);
+							}
+							else if (corner_nv == v(p(cmp))) {
+								success = true;
+								rswing = cmp;
+								swing = s(rswing);
+							}
+						}
+						if (success) {
+							S.add(swing);
+							R.set(swing, corner);
+							R.add(rswing);
+							S.set(rswing, corner);
+							break;
+						}
+					}
+				}
+				if (success) {
+					break;
+				}
+			}
+			if (!success) {
+				rswing = c(v(corner));
+				if (rswing >= 0) {
+					while (!bs(rswing)) {
+						rswing = s(rswing);
+					}
+					swing = s(rswing);
+					S.add(swing);
+					R.add(rswing);
+					S.set(rswing, corner);
+					R.set(swing, corner);
+				}
+				else {
+					S.add(corner);
+					R.add(corner);
+				}
+			}
+
 			C.set(v(corner), corner);
-			/* TODO: These are bogus swings */ 
-			S.add(corner);
-		} 
+		}
+
 		T_center.add(calc_triangle_center(triangle_count));
 		tri_enabled.add(true);
+
 		triangle_count += 1;
 		return triangle_count-1;
 	}
 
 	void disable_triangle(int t) {
 		tri_enabled.set(t, false);
+
+		/* remove corners from swing lists */
+		int corner, swing, rswing;
+		for (int i=0; i < 3; i++) {
+			corner = c(t, i);
+			swing = s(corner);
+			rswing = r(corner);
+			S.set(rswing, swing);
+			R.set(swing, rswing);
+		}
 	}
 }
