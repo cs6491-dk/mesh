@@ -3,11 +3,12 @@ int apollonius_counter = 0;
 void setup() {
   size(500, 500);
   //G = read_input("data/mesh.txt"); 
-  randomSeed(1);
+  randomSeed(20);
   G = rand_input(15, width, height);
-  m = new Mesh(G, 0);
-  //m = new Mesh(G, 1);
+  //m = new Mesh(G, 0); // bulge
+  m = new Mesh(G, 1); // naive
   println(apollonius_counter + " calls to apoll");
+
 }
 
 void draw() {
