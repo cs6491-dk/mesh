@@ -35,56 +35,157 @@ class Mesh {
 		cursor = 0;
 	}
 
-	void do_bulge_triangulation() {
-		int v1, v2, min_idx;
-		float min_bulge;
+	boolean in_front(int a, int b, int c) {
+		// given two points a and b which constitute a line, determine if c is ahead or behind
+		// return true if in front, false if behind   
+
+		// For a given line ab, this is the dot product between a vector perpendicular to ab
+		// and the vector ac.  If it is positive, then c is in front.  If it is negative, 
+		// then c is behind.  Note many formulations use the clockwise 90 degree rotation
+		// and so the equations and sign conditions are slightly different.  
+		// (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
+
+		float val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
+		//println("Is " + c + " in front of " + a + "," + b + "?"); 
+		if (val >= 0) {
+			return false;
+		} 
+		else {
+			return true;
+		}
+	}
+	boolean in_front_point(int a, int b, float x, float y) {
+		// given two points a and b which constitute a line, determine if c is ahead or behind
+		// return true if in front, false if behind   
+
+		// For a given line ab, this is the dot product between a vector perpendicular to ab
+		// and the vector ac.  If it is positive, then c is in front.  If it is negative, 
+		// then c is behind.  Note many formulations use the clockwise 90 degree rotation
+		// and so the equations and sign conditions are slightly different.  
+		// (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
+
+		float val = (x-G[a][0])*(G[b][1]-G[a][1])+(y-G[a][1])*(G[a][0]-G[b][0]);
+		if (val >= 0) {
+			return false;
+		} 
+		else {
+			return true;
+		}
+	}
+	void recursive_bulge(int v1, int v2) {
+		int v3;
+		//println("Bulging from: " + v1 + "," + v2);
+		ArrayList old_vlist = new ArrayList(v_list);
+		v3 = bulge(v1, v2);
+		//if (v3 == 12) {v3 = -1;}
+		if (v3 == -1) {
+			//println("No node found on bulge from " +v1 +"," +v2 +" , not recursing");
+		}
+		else if (old_vlist.contains(v3)){
+			//println("Not recursing.. we already had this one");       
+		}
+		else // bulge left and right
+		{
+			//println("Recursing to left");
+			recursive_bulge(v3, v2);    // v1 = v3; // this "goes left"
+			//println("Recursing to right");
+			recursive_bulge(v1, v3);    // v2 = v3; // this "goes right"
+		}
+	}
+
+	int bulge(int v1, int v2) {
+		// bulge from v1,v2 and try to grab a vertex
+		// return it if you find it, -1 if you don't find anything
+
+		int min_idx=-1;
+		float min_bulge = 1e10;
 		float gam_app, d_app;
-		Point mp = new Point(0, 0);
+		float[] mp = new float[2];
 
-		V = new ArrayList();
+		// Compute the midpoint
+		mp[0] = (G[v1][0]+G[v2][0])/2.0;
+		mp[1] = (G[v1][1]+G[v1][1])/2.0;    
 
-		// Get the first two vertices and add them to the list
+		// Loop over unseen vertices.  if it is "in front", then do apollonius
+		// otherwise, skip it
+
+		for (int k=0; k < G.length; k++)
+		{ 
+			//boolean test = is_triangle(v1, v2, k);
+
+			if (!in_front(v1, v2, k)) {
+				continue;
+			}  
+			/*if (v_list.contains(k)) { // change this to search for existing triangle
+			//if (is_triangle(v1, v2, k)) {
+				println(k + " already in vertex list...");
+				continue;
+			}*/
+
+			Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
+			// map need to choose between "alpha" and "gamma" here.. see whiteboard notes
+			boolean center_location = in_front_point(v1, v2, dsc.x, dsc.y);
+			//if (center_location) {println("front");} else {println("back");}
+			gam_app = sqrt(sq(dsc.x-mp[0])+sq(dsc.y-mp[1]));
+			float bulge_val;
+			if (center_location){
+				// front
+				bulge_val = max(dsc.r+gam_app, dsc.r-gam_app);
+			}
+			else {
+				// back
+				bulge_val = min(dsc.r-gam_app, dsc.r+gam_app);        
+			}                    
+			//d_app = dsc.r-gam_app;
+			if (bulge_val < min_bulge){
+				min_bulge = bulge_val;
+				min_idx = k;
+			}
+		}
+
+		if (min_idx > -1 ) {
+			v_list.add(v1);
+			v_list.add(v2);       
+			v_list.add(min_idx);
+		} 
+		return min_idx;
+	}
+	void do_bulge_triangulation() {
+		int v1, v2, v3;
+
+		// Get the first two vertices 
 		v1 = get_leftmost();
 		v2 = min_angle_from_leftmost();
 
-		for (int i=0; i < 10; i++)
-		{
-			V.add(v1);
-			V.add(v2);
-			// Compute the midpoint
-			Point gv1 = g(v1), gv2 = g(v2);
-			mp.set((gv1.x+gv2.x)/2.0, (gv1.y+gv2.y)/2.0);
-
-			min_idx=-1;
-			min_bulge = 1e10;
-			for (int k=0; k < G.size(); k++)
-			{
-				if (!V.contains(k)) {
-					Disk dsc= apollonius(gv1, gv2, g(k));
-					gam_app = sqrt(sq(dsc.x-mp.x)+sq(dsc.y-mp.y));
-					d_app = dsc.r-gam_app;
-					//println("gam+r: " + (gam_app+dsc.r));
-					if ((gam_app+dsc.r) < min_bulge) {
-						//min_bulge = d_app;
-						min_bulge = gam_app+dsc.r;
-						min_idx = k;
-						//println("k: " + k);
-						//            println("Gam_app: " + gam_app);
-						//            println("d_app: " + d_app);
-
-						//last_bulge = dsc;
-					}
-				}
-			}
-			if (min_idx == -1) {
-				break;
-			}
-			println("min_idx: " + min_idx);
-			V.add(min_idx);
-			v1 = v2;
-			v2 = min_idx;
-		}
+		//println("Doing bulge triangulation, " + v1 + "," +  v2);
+		recursive_bulge(v1, v2);
+		bulge(5,11);  
 		
+		///////////////////////////////////////////////////////////////////
+		// All code below is shared with do_triangulation... abstract it out
+		C = new int[G.length];    
+		/* Turn ArrayList into array V */
+		V = new int[v_list.size()];
+		for (int i=0; i < v_list.size(); i++) {
+			V[i] = (Integer)v_list.get(i);
+			C[V[i]] = i;
+		}
+
+		/* Compute triangle centers */
+		T_center = new float[V.length/3][2];
+		float sum;
+		/* iterate over Triangles */
+		for (int i=0; i < T_center.length; i++) {
+			/* iterate over spatial dimensions (2) */
+			for (int j=0; j < 2; j++) {
+				sum = 0;
+				/* iterate over the three corners of Triangle */
+				for (int k=0; k < 3; k++) {
+					sum += G[v(i*3+k)][j];
+				}
+				T_center[i][j] = sum/3;
+			}
+		}
 	}
 
 	void do_triangulation() {
