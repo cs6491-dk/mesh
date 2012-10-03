@@ -1,6 +1,6 @@
 class Mesh {
 	/* Config Parameters */
-	float node_radius = 5.0;
+	float node_radius = 1.0;
 
 	/* Mesh Implementation Objects */
 	float[][] G;
@@ -38,17 +38,14 @@ class Mesh {
 		new_set.add(v1);
 		new_set.add(v2);
 		new_set.add(v3);
-		println(v_list);
-		if (v3 == 1) {println(v_list.size()/3);}
 		for (int i=0; i < (v_list.size()); i+=3) {    
-			println(i);
 			comparison = new HashSet<Integer>();      
 			comparison.add((Integer)v_list.get(i));
 			comparison.add((Integer)v_list.get(i+1));
 			comparison.add((Integer)v_list.get(i+2));
 			if (v3 == 1) {println(comparison);}
 			if (new_set.equals(comparison)) {
-				println(v1 + "," + v2 + "," + v3 + " is already a triangle");
+				//println(v1 + "," + v2 + "," + v3 + " is already a triangle");
 				retval = true;
 				break;
 			}
@@ -68,11 +65,9 @@ class Mesh {
 		float val = (G[c][0]-G[a][0])*(G[b][1]-G[a][1])+(G[c][1]-G[a][1])*(G[a][0]-G[b][0]);
 		//println("Is " + c + " in front of " + a + "," + b + "?"); 
 		if (val >= 0) {
-			//println("no");
 			return false;
 		} 
 		else {
-			//println("yes");
 			return true;
 		}
 	}
@@ -87,33 +82,30 @@ class Mesh {
 		// (Cx-Ax)*(By-Ay) + (Cy-Ax)*(Ax-Bx)
 
 		float val = (x-G[a][0])*(G[b][1]-G[a][1])+(y-G[a][1])*(G[a][0]-G[b][0]);
-		//println("Is " + c + " in front of " + a + "," + b + "?"); 
 		if (val >= 0) {
-			//println("no");
 			return false;
 		} 
 		else {
-			//println("yes");
 			return true;
 		}
 	}
 	void recursive_bulge(int v1, int v2) {
 		int v3;
-		println("Bulging from: " + v1 + "," + v2);
+		//println("Bulging from: " + v1 + "," + v2);
 		ArrayList old_vlist = new ArrayList(v_list);
 		v3 = bulge(v1, v2);
 		//if (v3 == 12) {v3 = -1;}
 		if (v3 == -1) {
-			println("No node found on bulge from " +v1 +"," +v2 +" , not recursing");
+			//println("No node found on bulge from " +v1 +"," +v2 +" , not recursing");
 		}
 		else if (old_vlist.contains(v3)){
-			println("Not recursing.. we already had this one");       
+			//println("Not recursing.. we already had this one");       
 		}
 		else // bulge left and right
 		{
-			println("Recursing to left");
+			//println("Recursing to left");
 			recursive_bulge(v3, v2);    // v1 = v3; // this "goes left"
-			println("Recursing to right");
+			//println("Recursing to right");
 			recursive_bulge(v1, v3);    // v2 = v3; // this "goes right"
 		}
 	}
@@ -150,7 +142,7 @@ class Mesh {
 			Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
 			// map need to choose between "alpha" and "gamma" here.. see whiteboard notes
 			boolean center_location = in_front_point(v1, v2, dsc.x, dsc.y);
-			if (center_location) {println("front");} else {println("back");}
+			//if (center_location) {println("front");} else {println("back");}
 			gam_app = sqrt(sq(dsc.x-mp[0])+sq(dsc.y-mp[1]));
 			float bulge_val;
 			if (center_location){
@@ -168,15 +160,10 @@ class Mesh {
 			}
 		}
 
-		if (min_idx > -1 && !is_triangle(v1,v2,min_idx)) {
-			println("is_triangle: " +v1 +"," +v2+"," +min_idx);      
-			println(is_triangle(v1,v2,min_idx));      
-			println("Adding " + min_idx);
+		if (min_idx > -1 ) {
 			v_list.add(v1);
 			v_list.add(v2);       
 			v_list.add(min_idx);
-			println("is_triangle: " +v1 +"," +v2+"," +min_idx);      
-			println(is_triangle(v1,v2,min_idx));
 		} 
 		return min_idx;
 	}
@@ -187,7 +174,7 @@ class Mesh {
 		v1 = get_leftmost();
 		v2 = min_angle_from_leftmost();
 
-		println("Doing bulge triangulation, " + v1 + "," +  v2);
+		//println("Doing bulge triangulation, " + v1 + "," +  v2);
 		recursive_bulge(v1, v2);
 		bulge(5,11);  
 		
