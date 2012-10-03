@@ -100,10 +100,14 @@ class Mesh {
   void recursive_bulge(int v1, int v2) {
     int v3;
     println("Bulging from: " + v1 + "," + v2);
+    ArrayList old_vlist = new ArrayList(v_list);
     v3 = bulge(v1, v2);
     //if (v3 == 12) {v3 = -1;}
     if (v3 == -1) {
-      println("No node bound on bulge from " +v1 +"," +v2 +" , not recursing");
+      println("No node found on bulge from " +v1 +"," +v2 +" , not recursing");
+    }
+    else if (old_vlist.contains(v3)){
+      println("Not recursing.. we already had this one");       
     }
     else // bulge left and right
     {
@@ -137,10 +141,11 @@ class Mesh {
       if (!in_front(v1, v2, k)) {
         continue;
       }  
-      if (v_list.contains(k)) { // change this to search for existing triangle
+      /*if (v_list.contains(k)) { // change this to search for existing triangle
       //if (is_triangle(v1, v2, k)) {
+        println(k + " already in vertex list...");
         continue;
-      }
+      }*/
 
       Disk dsc= apollonius(G[v1][0], G[v1][1], G[v2][0], G[v2][1], G[k][0], G[k][1]);
       // map need to choose between "alpha" and "gamma" here.. see whiteboard notes
@@ -184,6 +189,7 @@ class Mesh {
 
     println("Doing bulge triangulation, " + v1 + "," +  v2);
     recursive_bulge(v1, v2);
+    bulge(5,11);  
     
     ///////////////////////////////////////////////////////////////////
     // All code below is shared with do_triangulation... abstract it out
