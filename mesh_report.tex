@@ -1,0 +1,97 @@
+\documentclass[a4paper,twocolumn]{article}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{multicol}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{mathptmx}
+\usepackage{amsmath}
+
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\usepackage{wrapfig}
+
+% Spacing stuff
+\usepackage[cm]{fullpage}
+\addtolength{\voffset}{-1in}
+%\setlength{\topmargin}{0pt}
+%\setlength\footskip{0pt}
+%\setlength{\parskip}{0cm}
+%\setlength{\parindent}{1em}
+%\usepackage[compact]{titlesec}
+%\titlespacing{\section}{0pt}{2ex}{1ex}
+%\titlespacing{\subsection}{5pt}{1ex}{2ex}
+%\titlespacing{\subsubsection}{0pt}{0.5ex}{0ex}
+
+\title{Mesh Project}
+\author{
+Donnie Smith (donnie.smith@gatech.edu) \\
+Kyle Harrigan (kwharrigan@gmail.com) 
+}	
+\date{October 4, 2012}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\begingroup
+%\let\center\flushleft
+%\let\endcenter\endflushleft
+%\maketitle
+%\endgroup
+\maketitle
+
+%\begin{tikzpicture}[remember picture,overlay]
+%  \node[anchor=north east,inner sep=0pt] at ($(current page.north east)-(1cm,0cm)$) {
+%%     \includegraphics[width=300px,height=180px]{main/data/screenshot.png}
+%
+%  };
+%\end{tikzpicture}
+
+
+ \subsection*{Problem Statement}
+ 
+Part A: Construct a Delaunay triangulation of a random set of points using the disk bulge approach and the CLERS labels of the triangles as they are invaded.  Select the most elegant (concise and robust) implementation for the next phase. Provide a very short description of your triangulation approach and of how you compute the corner table (V,S,C) tables.
+
+Phase B: et the user click and drag the mouse to define a polygonal curve that may (partially) overlap the mesh.
+The simplest may be to subdivide the mesh, to identify the stabbed edges (using the edge/edge intersection test, and to remove all triangles incident upon stabbed edges.
+
+In pase C, as the user is drawing it, your progrtam should use that curve to cut the mesh and should shrink the mesh progressively along the cut to give it a real feeling.
+ 
+ \subsection*{Completed Features}
+ \begin{multicols}{2}
+ \begin{itemize}
+ \setlength\multicolsep{0pt}
+\itemsep0em 
+\item ...
+\end{itemize}
+\end{multicols}
+
+ \subsection*{Potential Improvements}
+  \begin{multicols}{2}
+ \begin{itemize}
+\item Need to improve collision detection-- remove "flipping" and overlap conditions
+\item Possibly optimize computation of minimal containing disk
+\item AI collision detection improvements
+\end{itemize}
+\end{multicols}
+ 
+\subsection*{"Naive"/Exhaustive Triangulation}
+
+\subsection*{Bulge Triangulation}
+
+\subsection*{Cut Logic}
+
+% \includegraphics[width=200px,height=180px]{main/data/physics_init_clipped.png}
+
+
+  
+
+  
+\subsection*{References}
+\begin{itemize}
+\itemsep0em
+\item ...
+\end{itemize}
+\end{document}  
