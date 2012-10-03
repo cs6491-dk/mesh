@@ -389,6 +389,8 @@ class Mesh {
 
 	int add_triangle(int a, int b, int c) {
 		/* Assumption: CW triangle */
+		/* int s = V.size();
+		println("add_triangle: " + s + "(" + a + "), " + (s+1) + "(" + b + "), " + (s+2) + "(" + c + ")"); */
 		V.add(a);
 		V.add(b);
 		V.add(c);

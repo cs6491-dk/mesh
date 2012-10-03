@@ -93,24 +93,21 @@ class Cut {
 						/* Cut up current triangle */
 						m.disable_triangle(current_triangle);
 						/* split current triangle */
+						int exit_v1 = m.add_vertex(exit_point),
+						    exit_v2 = m.add_vertex(exit_point);
+						/* TODO: disable exit vertices */
 						if (entry_point == null) {
 							/* no entry point - must have started in this triangle */
-							entry_v1 = m.add_vertex(exit_point);
-							entry_v2 = m.add_vertex(exit_point);
-							/* disable entry vertices */
-							m.add_triangle(entry_v1,
+							m.add_triangle(exit_v2,
 							               m.v(m.n(exit_corner)),
 							               m.v(m.p(exit_corner)));
-							m.add_triangle(entry_v2,
+							m.add_triangle(exit_v1,
 							               m.v(m.p(exit_corner)),
 							               m.v(    exit_corner) );
 						}
 						else {
 							/* TODO: enable entry vertices */
 							int entry_corner = m.c(current_triangle, entry_edge);
-							int exit_v1 = m.add_vertex(exit_point),
-							    exit_v2 = m.add_vertex(exit_point);
-							/* TODO: disable exit vertices */
 							if (entry_edge == exit_edge) {
 								Point p1, p2,
 								      edge_vector = m.g(m.v(m.n(entry_corner))).minus(m.g(m.v(entry_corner)));
@@ -176,15 +173,36 @@ class Cut {
 								               p2v2,
 								               m.v(m.p(c1)));
 							}
-							entry_v1 = exit_v2;
-							entry_v2 = exit_v1;
 						}
 						current_triangle = next_triangle;
 						entry_edge = next_entry_edge;
 						entry_point = exit_point;
+						entry_v1 = exit_v2;
+						entry_v2 = exit_v1;
 						break;
 					}
 				}
+			}
+		}
+	}
+
+	void terminate(Point p) {
+		if (current_triangle >= 0) {
+			/* Cut up current triangle */
+			m.disable_triangle(current_triangle);
+			/* split current triangle */
+			if (entry_point != null) {
+				int entry_corner = m.c(current_triangle, entry_edge);
+				/* disable entry vertices */
+				m.add_triangle(entry_v2,
+				               m.v(m.n(entry_corner)),
+				               m.v(m.p(entry_corner)));
+				m.add_triangle(entry_v1,
+				               m.v(m.p(entry_corner)),
+				               m.v(    entry_corner) );
+			}
+			else {
+				/* no entry point - must have started and ended in this triangle - do nothing */
 			}
 		}
 	}

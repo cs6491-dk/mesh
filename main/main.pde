@@ -1,8 +1,6 @@
 Mesh m;
 Cut c;
 
-boolean dragging;
-
 void setup() {
 	size(500, 500);
 	//G = read_input("data/mesh.txt"); 
@@ -10,7 +8,6 @@ void setup() {
 	G = rand_input(15, width, height);
 	m = new Mesh(G, 1);
 	c = null;
-	dragging = false;
 }
 
 void draw() {
@@ -38,13 +35,12 @@ void keyPressed() {
 
 void mousePressed() {
 	c = new Cut(m);
-	dragging = true;
 }
 
 void mouseDragged() {
 	c.add_point(new Point(mouseX, mouseY));
 }
 
-void mouseRelease() {
-	dragging = false;
+void mouseReleased() {
+	c.terminate(new Point(mouseX, mouseY));
 }
