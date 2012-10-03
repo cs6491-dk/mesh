@@ -203,7 +203,7 @@ class Cut {
 			}
 		}
 
-		strokeWeight(2);
+		/* strokeWeight(2);
 		fill(0, 0, 255);
 		cursor = null;
 		for (int i=0; i < isect_list.size(); i++) {
@@ -214,6 +214,6 @@ class Cut {
 			if (prev != null) {
 				line(prev.x, prev.y, cursor.x, cursor.y);
 			}
-		}
+		} */
 	}
 }
