@@ -28,6 +28,9 @@ void keyPressed() {
 	else if (key == 'p') {
 		m.set_cursor(m.p(m.cursor));
 	}
+	else if (key == 'r') {
+		m.set_cursor(m.r(m.cursor));
+	}
 	else if (key == 's') {
 		m.set_cursor(m.s(m.cursor));
 	}

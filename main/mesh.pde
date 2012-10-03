@@ -6,6 +6,7 @@ class Mesh {
 	ArrayList<Point> G;
 	ArrayList<Integer> V;
 	ArrayList<Integer> S;
+	ArrayList<Integer> R;
 	ArrayList<Integer> C;
 	ArrayList<Boolean> tri_enabled;
 	int triangle_count;
@@ -166,51 +167,51 @@ class Mesh {
 
 	void calc_swing() {
 		S = new ArrayList();
+		R = new ArrayList();
 
 		/* find all good (non-super) swings */
-		int tri, iv, ipv;
-		boolean success;
+		int tri, iv, ipv, inv;
+		boolean swing_found, rswing_found;
 		/* iterate over corners */
 		for (int i=0; i < V.size(); i++) {
 			iv = v(i);
 			ipv = v(p(i));
-			success = false;
+			inv = v(n(i));
+			swing_found = false;
+			rswing_found = false;
 			/* iterate over corners to find a match */
 			for (int j=0; j < V.size(); j++) {
-				if ((i != j) && (iv == v(j)) && (ipv == v(n(j)))) {
+				if (!swing_found && (i != j) && (iv == v(j)) && (ipv == v(n(j)))) {
 					S.add(j);
-					success = true;
+					swing_found = true;
+				}
+				else if (!rswing_found && (i != j) && (iv == v(j)) && (inv == v(p(j)))) {
+					R.add(j);
+					rswing_found = true;
+				}
+				if (swing_found && rswing_found) {
 					break;
 				}
 			}
 			/* No non-super swing found */
-			if (!success) {
+			if (!swing_found) {
 				S.add(i);
+			}
+			/* No non-super rswing found */
+			if (!rswing_found) {
+				R.add(i);
 			}
 		}
 
-		/* Inefficient.  Better idea:
-		 * maintain a reverse swing table, due to 
-		 * manifold mesh requirement, there will be a single beginning and end to the loop */
-		/* superswing */
-		/* iterate over corners, looking for superswingers */
-		int jnv;
-		float a, best_angle;
 		for (int i=0; i < S.size(); i++) {
 			if (S.get(i) == i) {
-				best_angle = 2*PI;
-				iv = v(i);
-				ipv = v(p(i));
-				for (int j=0; j < S.size(); j++) {
-					if ((i != j) && (iv == v(j))) {
-						jnv = v(n(j));
-						a = angle(g(iv), g(ipv), g(jnv));
-						if (a < best_angle) {
-							best_angle = a;
-							S.set(i, j);
-						}
-					}
+				int j = -1, next_j = i;
+				while (j != next_j) {
+					j = next_j;
+					next_j = R.get(j);
 				}
+				S.set(i, j);
+				R.set(j, i);
 			}
 		}
 	}
@@ -303,6 +304,10 @@ class Mesh {
 
 	int p(int c) {
 		return (c+2)%3 + 3*t(c);
+	}
+
+	int r(int c) {
+		return R.get(c);
 	}
 
 	int s(int c) {
