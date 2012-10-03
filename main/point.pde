@@ -2,6 +2,11 @@ class Point {
 	float x;
 	float y;
 
+	Point(Point arg) {
+		x = arg.x;
+		y = arg.y;
+	}
+
 	Point(float arg_x, float arg_y) {
 		set(arg_x, arg_y);
 	}
@@ -17,6 +22,15 @@ class Point {
 
 	float mag() {
 		return sqrt(mag2());
+	}
+
+	void add(Point p2) {
+		add(p2.x, p2.y);
+	}
+
+	void add(float xarg, float yarg) {
+		x += xarg;
+		y += yarg;
 	}
 
 	Point minus(Point p2) {

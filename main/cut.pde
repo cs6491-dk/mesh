@@ -60,7 +60,7 @@ class Cut {
 								current_triangle = i;
 								entry_edge = j;
 								entry_v1 = m.add_vertex(entry_point);
-								entry_v2 = m.add_vertex(entry_point);
+								entry_v2 = m.add_vertex(new Point(entry_point));
 								break;
 							}
 						}
@@ -94,8 +94,7 @@ class Cut {
 						m.disable_triangle(current_triangle);
 						/* split current triangle */
 						int exit_v1 = m.add_vertex(exit_point),
-						    exit_v2 = m.add_vertex(exit_point);
-						/* TODO: disable exit vertices */
+						    exit_v2 = m.add_vertex(new Point(exit_point));
 						if (entry_point == null) {
 							/* no entry point - must have started in this triangle */
 							m.add_triangle(exit_v2,
@@ -106,7 +105,8 @@ class Cut {
 							               m.v(    exit_corner) );
 						}
 						else {
-							/* TODO: enable entry vertices */
+							m.enable_physics(entry_v1);
+							m.enable_physics(entry_v2);
 							int entry_corner = m.c(current_triangle, entry_edge);
 							if (entry_edge == exit_edge) {
 								Point p1, p2,
@@ -128,7 +128,7 @@ class Cut {
 									p2v1 = entry_v1;
 									p2v2 = entry_v2;
 								}
-								/* TODO: Unhandled case - entry_point = exit_point */
+								/* TODO: Unhandled case - entry_point == exit_point */
 								m.add_triangle(p2v1,
 								               m.v(m.n(entry_corner)),
 								               m.v(m.p(entry_corner)));
@@ -174,6 +174,10 @@ class Cut {
 								               m.v(m.p(c1)));
 							}
 						}
+						if (next_triangle == -1) {
+							m.enable_physics(exit_v1);
+							m.enable_physics(exit_v2);
+						}
 						current_triangle = next_triangle;
 						entry_edge = next_entry_edge;
 						entry_point = exit_point;
@@ -192,6 +196,8 @@ class Cut {
 			m.disable_triangle(current_triangle);
 			/* split current triangle */
 			if (entry_point != null) {
+				m.enable_physics(entry_v1);
+				m.enable_physics(entry_v2);
 				int entry_corner = m.c(current_triangle, entry_edge);
 				/* disable entry vertices */
 				m.add_triangle(entry_v2,

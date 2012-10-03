@@ -3,12 +3,14 @@ class Mesh {
 	float node_radius = 5.0;
 
 	/* Mesh Implementation Objects */
-	ArrayList<Point> G;
-	ArrayList<Integer> V;
-	ArrayList<Integer> S;
-	ArrayList<Integer> R;
-	ArrayList<Integer> C;
+	ArrayList<Point> G;		/* maps vertices to points */
+	ArrayList<Integer> V;	/* maps corners to vertices */
+	ArrayList<Integer> S;	/* maps corners to their swing */
+	ArrayList<Integer> R;	/* maps corners to their reverse swing */
+	ArrayList<Integer> C;	/* maps vertices to (some arbitrary) corner at that vertex */
+	ArrayList<Float> L;		/* records length of vector from corner to median of opposite edge */
 	ArrayList<Boolean> tri_enabled;
+	ArrayList<Boolean> physics_enabled;
 	int triangle_count;
 
 	/* Visualization */
@@ -31,8 +33,6 @@ class Mesh {
 			do_triangulation();
 		}
 		post_triangulate();
-		calc_c();
-		calc_swing();
 		cursor = 0;
 	}
 
@@ -210,9 +210,20 @@ class Mesh {
 			T_center.add(calc_triangle_center(i));
 		}
 
+		/* Populate tri_enabled */
 		tri_enabled = new ArrayList();
+		L = new ArrayList();
 		for (int i=0; i < triangle_count; i++) {
 			tri_enabled.add(true);
+			calc_l(i);
+		}
+
+		calc_c();
+		calc_swing();
+
+		physics_enabled = new ArrayList();
+		for (int i=0; i < V.size(); i++) {
+			physics_enabled.add(false);
 		}
 	}
 
@@ -287,6 +298,19 @@ class Mesh {
 				S.set(i, j);
 				R.set(j, i);
 			}
+		}
+	}
+
+	void calc_l(int t) {
+		int corner;
+		Point A, B, C;
+		for (int j=0; j < 3; j++) {
+			corner = c(t,j);
+			A = g(v(corner));
+			B = g(v(n(corner)));
+			C = g(v(p(corner)));
+
+			L.add(sqrt(sq((B.x+C.x)/2 - A.x) + sq((B.y+C.y)/2 - A.y)));
 		}
 	}
 
@@ -458,6 +482,7 @@ class Mesh {
 	int add_vertex(Point p) {
 		G.add(p);
 		C.add(-1);
+		physics_enabled.add(false);
 		return G.size()-1;
 	}
 
@@ -530,6 +555,7 @@ class Mesh {
 			C.set(v(corner), corner);
 		}
 
+		calc_l(triangle_count);
 		T_center.add(calc_triangle_center(triangle_count));
 		tri_enabled.add(true);
 
@@ -548,6 +574,35 @@ class Mesh {
 			rswing = r(corner);
 			S.set(rswing, swing);
 			R.set(swing, rswing);
+		}
+	}
+
+	void enable_physics(int v) {
+		physics_enabled.set(v, true);
+	}
+
+	void update_physics() {
+		int corner, first_corner;
+		Point F = new Point(0,0);
+		float fx, fy;
+		Point A, B, C;
+		float k = 0.1;
+		for (int v=0; v < G.size(); v++) {
+			if (physics_enabled.get(v)) {
+				A = g(v);
+				corner = c(v);
+				first_corner = corner;
+				fx = fy = 0.0;
+				do {
+					B = g(v(n(corner)));
+					C = g(v(p(corner)));
+					F.set((B.x+C.x)/2 - A.x, (B.y+C.y)/2 - A.y);
+					fx += k*(F.mag() - L.get(corner)/2) * F.x/F.mag();
+					fy += k*(F.mag() - L.get(corner)/2) * F.y/F.mag();
+					corner = s(corner);
+				} while (corner != first_corner);
+				g(v).add(fx, fy);
+			}
 		}
 	}
 }
