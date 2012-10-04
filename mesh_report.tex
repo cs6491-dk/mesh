@@ -49,7 +49,7 @@ Kyle Harrigan (kwharrigan@gatech.edu)
 
  \begin{abstract}
  
-The initial task of Project 2 was the construction of a Delaunay triangulation \cite{wiki:delaunay} of a random set of points using the disk bulge approach and the CLERS \cite{Rossignac99wrapzip} labels of the triangles as they are invaded.  An elegant, concise, and robust algorithm was implemented for the next phase. A short description of the triangulation approach and of how the corner tables (V,S,C) \cite{Rossignac04compressingvolumes} are computed is provided.
+The initial task of Project 2 was the construction of a Delaunay triangulation \cite{wiki:delaunay} of a random set of points using the disk bulge approach and the CLERS \cite{Rossignac99wrapzip,Rossignac04compressingvolumes} labels of the triangles as they are invaded.  An elegant, concise, and robust algorithm was implemented for the next phase. A short description of the triangulation approach and of how the corner tables (V,S,C) \cite{Rossignac04compressingvolumes} are computed is provided.
 
 Following the construction of the triangulation, the user can click and drag the mouse to define a polygonal curve that may (partially) overlap the mesh.  As the user is drawing it, the program uses that curve to cut the mesh and shrinks the mesh progressively along the cut to give it a realistic look-and-feel.
  
@@ -62,8 +62,8 @@ Following the construction of the triangulation, the user can click and drag the
 A "bulge" triangulation method was also implemented as follows.  The leftmost point is selected as the first vertex (v1).  An imaginary vector pointing directly up is then "swung down" to the right until it encounters the first point.  Mathematically, this is implemented by finding the point which results in the minimum angle between a vector originating at v1 and the vertical and a vector originating at v1 and the test point.  The point which passes this test becomes v2.  
 Following this procedure, a recursive bulge process is carried out to the "front" of the segment formed by v1 and v2.    The recursions stops when no points are found "in front" of a side.   
 
-\section{Corner Table Computation}
-As each triangulation step adds a vertex, a new triangle is added by adding vertices v1, v2, and the "minimum bulge" vertex v3 to the list of vertices V.  Once a complete list of triangles is computed, C is computed where C[v] is any corner at vertex V by simply looping over the vertices.
+\section{Corner Table \cite{Rossignac04compressingvolumes} Computation}
+As each triangulation step adds a vertex, a new triangle is added by adding vertices v1, v2, and the "minimum bulge" vertex v3 to the list of vertices V.  Once a complete list of triangles is computed, C is computed where C[v] is any corner at vertex V by simply looping over the vertices.  The swing table S is computed by identifying corners for which $(iv == v(j) \& (ipv == v(n(j))$ where iv is the current corner, $ipv$ is $v(p(i))$.   We have also employed the notion of R, a so-called "reverse-swing".  The reverse-swing is just the counter-clockwise version of the swing.  This allows us to easy compute the super swing by reverse-swinging until the edge is reached.  
 \section{Cut Functionality and Logic}
 
 \section{Results}
