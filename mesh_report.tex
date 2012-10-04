@@ -49,7 +49,7 @@ Kyle Harrigan (kwharrigan@gatech.edu)
 
  \begin{abstract}
  
-The initial task of Project 2 was the construction of a Delaunay triangulation \cite{wiki:delaunay} of a random set of points using the disk bulge approach and the CLERS labels of the triangles as they are invaded.  An elegant, concise, and robust algorithm was implemented for the next phase. A short description of the triangulation approach and of how the corner tables (V,S,C) are computed is provided.
+The initial task of Project 2 was the construction of a Delaunay triangulation \cite{wiki:delaunay} of a random set of points using the disk bulge approach and the CLERS \cite{Rossignac99wrapzip} labels of the triangles as they are invaded.  An elegant, concise, and robust algorithm was implemented for the next phase. A short description of the triangulation approach and of how the corner tables (V,S,C) \cite{Rossignac04compressingvolumes} are computed is provided.
 
 Following the construction of the triangulation, the user can click and drag the mouse to define a polygonal curve that may (partially) overlap the mesh.  As the user is drawing it, the program uses that curve to cut the mesh and shrinks the mesh progressively along the cut to give it a realistic look-and-feel.
  
@@ -63,11 +63,11 @@ A "bulge" triangulation method was also implemented as follows.  The leftmost po
 Following this procedure, a recursive bulge process is carried out to the "front" of the segment formed by v1 and v2.    The recursions stops when no points are found "in front" of a side.   
 
 \section{Corner Table Computation}
-As each triangulation step adds a vertex, a new triangle is added by adding vertices v1, v2, and the "minimum bulge" vertex v3 to the list of vertices V.  Once a complete list of triangles is computed, C is computed where C[v] is any corner at vertex V by simply looping over the vertices 
+As each triangulation step adds a vertex, a new triangle is added by adding vertices v1, v2, and the "minimum bulge" vertex v3 to the list of vertices V.  Once a complete list of triangles is computed, C is computed where C[v] is any corner at vertex V by simply looping over the vertices.
 \section{Cut Functionality and Logic}
 
 \section{Results}
-As expected, the bulge triangulation is orders of magnitude faster than the naive implementation.  In the example case shown on this page, for 15 vertices, only 160 calls were made to the Apollonius solver, whereas the naive method required over 455 calls (1.84 times more).  For a larger number of vertices (500), the bulge implementation requires only 249,125 calls and the naive implementation requires 20,708,500 calls (8200 times more).  
+As can be expected, the bulge triangulation is orders of magnitude faster than the naive implementation.  In the example case shown on this page, for 15 vertices, only 160 calls were made to the Apollonius solver, whereas the naive method required over 455 calls (appx. 1.84 times more).  For a larger number of vertices (500), the bulge implementation requires only 249,125 calls and the naive implementation requires 20,708,500 calls (appx. 8200 times more).  
 The cut functionality works well and provides a real "feeling" as the cut happens. 
 \begin{figure}[!t]
 \centering
@@ -78,16 +78,21 @@ The cut functionality works well and provides a real "feeling" as the cut happen
 \end{figure}
 
  \section{Conclusion}
- The basic functionality for bulge triangulation, performing a cut, and mesh shrink physics was achieved. 
+ The basic functionality for bulge triangulation, performing a cut, and mesh shrink physics were achieved. 
 There are numerous improvements that could be made.  The following is a short list we have thought of:
+ \begin{multicols}{2}
 \begin{itemize}
+\setlength\multicolsep{0pt}
 \itemsep0em
 \item Improved cut physics by utilizing more complex spring-mass system
 \item Implement additional triangulation methods
 \item When moving too fast, the cut logic may not function correctly
 \end{itemize}
+\end{multicols}
+
 
 \bibliography{cs6491}
+
 
 %\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{main/data/dsmith.png}}]{Donnie Smith} donnie.smith@gatech.edu
 %\end{IEEEbiography}
