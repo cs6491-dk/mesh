@@ -63,13 +63,16 @@ Finally, as the user is drawing it, the program should use that curve to cut the
  \end{abstract}
 
 \section{Introduction}
-\IEEEPARstart{C}{onstruction} of a Delaunay triangulation of a set of points is of great usefulness in the field of computer graphics. 
+\IEEEPARstart{C}{onstruction} of a Delaunay triangulation of a set of points is of general interest in many modern fields. 
  \section{Completed Features}
-
  
 \section{"Naive"/Exhaustive Triangulation}
 
+Initially, a naive triangulation algorithm was implemented.  
+
 \section{Bulge Triangulation}
+A "bulge" triangulation method was also implemented.  This method is implemented as follows.  The leftmost point is selected as the first vertex (v1).  An imaginary vector pointing directly up is then "swung down" to the right until it encounters the first point.  Mathematically, this is implemented by finding the point which results in the minimum angle between a vector originating at v1 and the vertical and a vector originating at v1 and the test point.  The point which passes this test becomes v2.  
+Following this procedure, a recursive bulge process is carried out to the "front" of the segment formed by v1 and v2.     
 
 \section{Cut Logic}
 
@@ -80,6 +83,11 @@ Finally, as the user is drawing it, the program should use that curve to cut the
 \item blah
 \end{itemize}
 \end{multicols} 
+
+\section{Results}
+Put pictures of:
+Triangulation
+Post-cut triangulation
 \section{References}
 \begin{itemize}
 \itemsep0em
@@ -90,7 +98,7 @@ Finally, as the user is drawing it, the program should use that curve to cut the
 (M'?)  has been a student of CS 6241 since Fall of 2012.  \end{IEEEbiography}
 
 \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{main/data/kwharrigan.jpg}}]{Kyle Harrigan} 
-(M'08) has been a student of CS 6241 since Fall of 2012.  \end{IEEEbiography}
+(M'?) has been a student of CS 6241 since Fall of 2012.  \end{IEEEbiography}
 
 \end{document}  
 
