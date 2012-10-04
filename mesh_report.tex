@@ -1,4 +1,4 @@
-\documentclass[a4paper,twocolumn]{article}
+\documentclass[letterpaper,10pt]{IEEEtran}
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
 \geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
 %\geometry{landscape}                % Activate for for rotated page geometry
@@ -17,7 +17,7 @@
 
 % Spacing stuff
 \usepackage[cm]{fullpage}
-\addtolength{\voffset}{-1in}
+%addtolength{\voffset}{-1in}
 %\setlength{\topmargin}{0pt}
 %\setlength\footskip{0pt}
 %\setlength{\parskip}{0cm}
@@ -30,10 +30,12 @@
 \title{Mesh Project}
 \author{
 Donnie Smith (donnie.smith@gatech.edu) \\
-Kyle Harrigan (kwharrigan@gmail.com) 
+Kyle Harrigan (kwharrigan@gatech.edu) 
 }	
 \date{October 4, 2012}                                           % Activate to display a given date or no date
 
+
+\markboth{CS 6241 Fall 2012, Project 2}{Shell \MakeLowercase{\text it{et al.}}: A Novel Tin Can Link}
 \begin{document}
 %\begingroup
 %\let\center\flushleft
@@ -50,48 +52,47 @@ Kyle Harrigan (kwharrigan@gmail.com)
 %\end{tikzpicture}
 
 
- \subsection*{Problem Statement}
+ \begin{abstract}
  
-Part A: Construct a Delaunay triangulation of a random set of points using the disk bulge approach and the CLERS labels of the triangles as they are invaded.  Select the most elegant (concise and robust) implementation for the next phase. Provide a very short description of your triangulation approach and of how you compute the corner table (V,S,C) tables.
+The initial task of Project 2 was the construction of a Delaunay triangulation of a random set of points using the disk bulge approach and the CLERS labels of the triangles as they are invaded.  An elegant (concise and robust) implementation was desired for the next phase. A short description of the triangulation approach and of how the corner table (V,S,C) are computed is provided.
 
-Phase B: et the user click and drag the mouse to define a polygonal curve that may (partially) overlap the mesh.
-The simplest may be to subdivide the mesh, to identify the stabbed edges (using the edge/edge intersection test, and to remove all triangles incident upon stabbed edges.
+Following the construction of the triangulation, it was desirable to allow the user to click and drag the mouse to define a polygonal curve that may (partially) overlap the mesh.
 
-In pase C, as the user is drawing it, your progrtam should use that curve to cut the mesh and should shrink the mesh progressively along the cut to give it a real feeling.
+Finally, as the user is drawing it, the program should use that curve to cut the mesh and should shrink the mesh progressively along the cut to give it a real feeling.
  
- \subsection*{Completed Features}
- \begin{multicols}{2}
- \begin{itemize}
- \setlength\multicolsep{0pt}
-\itemsep0em 
-\item ...
-\end{itemize}
-\end{multicols}
+ \end{abstract}
 
- \subsection*{Potential Improvements}
-  \begin{multicols}{2}
- \begin{itemize}
-\item Need to improve collision detection-- remove "flipping" and overlap conditions
-\item Possibly optimize computation of minimal containing disk
-\item AI collision detection improvements
-\end{itemize}
-\end{multicols}
+\section{Introduction}
+\IEEEPARstart{C}{onstruction} of a Delaunay triangulation of a set of points is of great usefulness in the field of computer graphics. 
+ \section{Completed Features}
+
  
-\subsection*{"Naive"/Exhaustive Triangulation}
+\section{"Naive"/Exhaustive Triangulation}
 
-\subsection*{Bulge Triangulation}
+\section{Bulge Triangulation}
 
-\subsection*{Cut Logic}
+\section{Cut Logic}
 
 % \includegraphics[width=200px,height=180px]{main/data/physics_init_clipped.png}
-
-
-  
-
-  
-\subsection*{References}
+ \section{Future Work}
+  \begin{multicols}{2}
+ \begin{itemize}
+\item blah
+\end{itemize}
+\end{multicols} 
+\section{References}
 \begin{itemize}
 \itemsep0em
 \item ...
 \end{itemize}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{main/data/dsmith.png}}]{Donnie Smith} 
+(M'?)  has been a student of CS 6241 since Fall of 2012.  \end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{main/data/kwharrigan.jpg}}]{Kyle Harrigan} 
+(M'08) has been a student of CS 6241 since Fall of 2012.  \end{IEEEbiography}
+
 \end{document}  
+
+
+
