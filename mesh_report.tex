@@ -64,7 +64,19 @@ Following this procedure, a recursive bulge process is carried out to the "front
 
 \section{Corner Table Computation}
 As each triangulation step adds a vertex, a new triangle is added by adding vertices v1, v2, and the "minimum bulge" vertex v3 to the list of vertices V.  Once a complete list of triangles is computed, C is computed where C[v] is any corner at vertex V by simply looping over the vertices.
+
 \section{Cut Functionality and Logic}
+As the cut is drawn through the mesh, intersections are checked at every mouse position update.
+When the pointer is outside the mesh, each edge must be checked, but once it enters the mesh, only the three edges of the current triangle need to be checked.
+Once a triangle has been entered and exited, it is split into multiple triangles as described in class depending on whether or not the entry and exit points are on the same edge.
+It is also possible for the cut to originate and/or terminate inside a triangle, resulting in triangles with a single cut point.
+These triangles are split into two triangles separated by a line drawn from the cut point to the opposite corner.
+
+\section{Spreading Method}
+In order to spread the mesh away from the cut, all vertices created by the cut are modelled as though they have springs connecting them to the medians of the opposite edges of all triangles using them.
+The natural, or forced, length of the spring is one half of the original distance from the vertex to the opposite median.
+It should be noted that in this physical simulation, the springs directly change the position, rather than changing the velocity as a true physical force would.
+This simplifies the simulation, and avoids oscillations in the mesh.
 
 \section{Results}
 As can be expected, the bulge triangulation is orders of magnitude faster than the naive implementation.  In the example case shown on this page, for 15 vertices, only 160 calls were made to the Apollonius solver, whereas the naive method required over 455 calls (appx. 1.84 times more).  For a larger number of vertices (500), the bulge implementation requires only 249,125 calls and the naive implementation requires 20,708,500 calls (appx. 8200 times more).  
