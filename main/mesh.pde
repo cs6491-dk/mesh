@@ -36,6 +36,30 @@ class Mesh {
 		cursor = 0;
 	}
 
+	boolean is_triangle(int v1, int v2, int v3) {
+		// given three vertices determine if we already have that triangle
+
+		boolean retval = false;
+		// Use set class to compare triangles
+		Set<Integer> new_set = new HashSet<Integer>();
+		Set<Integer> comparison;
+		new_set.add(v1);
+		new_set.add(v2);
+		new_set.add(v3);
+		for (int i=0; i < (V.size()); i+=3) {    
+			comparison = new HashSet<Integer>();      
+			comparison.add((Integer)V.get(i));
+			comparison.add((Integer)V.get(i+1));
+			comparison.add((Integer)V.get(i+2));
+			//if (v3 == 1) {println(comparison);}
+			if (new_set.equals(comparison)) {
+				//println(v1 + "," + v2 + "," + v3 + " is already a triangle");
+				retval = true;
+				break;
+			}
+		}  
+		return retval;
+	}
 	boolean in_front(int a, int b, int c) {
 		// given two points a and b which constitute a line, determine if c is ahead or behind
 		// return true if in front, false if behind   
@@ -104,7 +128,7 @@ class Mesh {
 		float[] mp = new float[2];
 
 		// Compute the midpoint
-		mp[0] = (g(v1).x+g(v1).x)/2.0;
+		mp[0] = (g(v1).x+g(v2).x)/2.0;
 		mp[1] = (g(v1).y+g(v2).y)/2.0;    
 
 		// Loop over unseen vertices.  if it is "in front", then do apollonius
@@ -117,11 +141,6 @@ class Mesh {
 			if (!in_front(v1, v2, k)) {
 				continue;
 			}  
-			/*if (v_list.contains(k)) { // change this to search for existing triangle
-			//if (is_triangle(v1, v2, k)) {
-				println(k + " already in vertex list...");
-				continue;
-			}*/
 
 			Disk dsc= apollonius(g(v1), g(v2), g(k));
 			// map need to choose between "alpha" and "gamma" here.. see whiteboard notes
@@ -144,7 +163,7 @@ class Mesh {
 			}
 		}
 
-		if (min_idx > -1 ) {
+		if (min_idx > -1 && !is_triangle(v1,v2,min_idx)) {
 			V.add(v1);
 			V.add(v2);       
 			V.add(min_idx);
@@ -316,11 +335,13 @@ class Mesh {
 
 	void draw() {
 		strokeWeight(1);
-		fill(0, 0, 0);
 		Point gi;
 		for (int i=0; i < G.size(); i++) {
 			gi = g(i);
-			ellipse(gi.x, gi.y, 2*node_radius, 2*node_radius);
+		        fill(0, 0, 0);
+			ellipse(gi.x, gi.y, 1*node_radius, 1*node_radius);
+			fill(255, 255, 255);
+			//text(i, gi.x-5, gi.y+5);
 		}
 
 		int a, b, c;
