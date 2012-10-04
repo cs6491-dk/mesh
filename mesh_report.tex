@@ -56,7 +56,7 @@ Following the construction of the triangulation, the user can click and drag the
  \end{abstract}
  
 \section{"Naive" Exhaustive Triangulation}
-\IEEEPARstart{I}{nitially} , a naive triangulation algorithm was implemented to produce the Delaunay Triangulation.  This algorithm is a nested loop over all triplets of points, looking at all combinations.  For each triplet, it computes the Apollonius circle.  It then loops over all other points to determine if they are contained within this circle.  Since this is precisely enforces the condition for the Delaunay triangulation, when it completes it is guaranteed to produce such a triangulation.  
+\IEEEPARstart{I}{nitially} , a naive triangulation algorithm was implemented to produce the Delaunay Triangulation.  This algorithm is a nested loop over all triplets of points, looking at all combinations.  For each triplet, it computes the circumcircle.  It then loops over all other points to determine if they are contained within this circle.  Since this is precisely enforces the condition for the Delaunay triangulation, when it completes it is guaranteed to produce such a triangulation.  
 
 \section{Bulge Triangulation}
 A "bulge" triangulation method was also implemented as follows.  The leftmost point is selected as the first vertex (v1).  An imaginary vector pointing directly up is then "swung down" to the right until it encounters the first point.  Mathematically, this is implemented by finding the point which results in the minimum angle between a vector originating at v1 and the vertical and a vector originating at v1 and the test point.  The point which passes this test becomes v2.  
@@ -79,7 +79,7 @@ It should be noted that in this physical simulation, the springs directly change
 This simplifies the simulation, and avoids oscillations in the mesh.
 
 \section{Results}
-As can be expected, the bulge triangulation is orders of magnitude faster than the naive implementation.  In the example case shown on this page, for 15 vertices, only 160 calls were made to the Apollonius solver, whereas the naive method required over 455 calls (appx. 1.84 times more).  For a larger number of vertices (500), the bulge implementation requires only 249,125 calls and the naive implementation requires 20,708,500 calls (appx. 8200 times more).  
+As can be expected, the bulge triangulation is orders of magnitude faster than the naive implementation.  In the example case shown on this page, for 15 vertices, only 160 calls were made to the circumcircle solver, whereas the naive method required over 455 calls (appx. 1.84 times more).  For a larger number of vertices (500), the bulge implementation requires only 249,125 calls and the naive implementation requires 20,708,500 calls (appx. 8200 times more).  
 The cut functionality works well and provides a real "feeling" as the cut happens. 
 \begin{figure}[!t]
 \centering
